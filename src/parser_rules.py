@@ -3,6 +3,7 @@ from tokrules import tokens
 
 #   La idea acá es definir las producciones de la gramática y cómo se va
 #   sintetizando el atributo correspondiente "p" a cada una
+#   El atributo a sintetizar en teoría es el AST de la expresión
 #
 #   def p_expression_plus(p):
 #       'expression : expression PLUS term'
@@ -99,16 +100,17 @@ class GroupedBrkt(Expr): pass
 
 precedence = (
            ('left', '/'),
+           ('left', 'CONCAT'),
            ('nonassoc', '^', '_'),
-           # TODO completar
 )
 
-def p_chr(p):
+def p_expression_chr(p):
     '''expression : CHR '''
     pass
 
-def p_concat(p):
-    '''expression : expression expression'''
+def p_expression_concat(p):
+    # %prec asocia la precedencia producción a la del pseudosimbolo CONCAT
+    '''expression : expression expression %prec CONCAT'''
     pass
 
 def p_expression_binop(p):
@@ -117,8 +119,13 @@ def p_expression_binop(p):
                   | expression '/' expression'''
     pass
 
-#TODO Completar
+def p_expression_grouped_par(p):
+    '''expression : '(' expression ')' '''
+    pass
 
+def p_expression_grouped_brkt(p):
+    '''expression : '{' expression '}' '''
+    pass
 
 def p_error(p):
     print("Syntax error in input!")
