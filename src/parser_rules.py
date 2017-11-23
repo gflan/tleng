@@ -77,32 +77,48 @@ from tokrules import tokens
 #       'expression : NUMBER'
 #       p[0] = Number(p[1])
 #
-#       Posible estructura
+#       Posible estructura TODO Completar
 # E
 class Expr: pass
-
-# A op B
-class BinOp(Expr): pass
 
 # a
 class Chr(Expr): pass
 
+# A ^ B ó A _ B
+class BinOp(Expr): pass
+
 # A B
 class Concat(Expr): pass
 
-# () {}
-class Grouped(Expr): pass
+# ()
+class GroupedPar(Expr): pass
+
+# {}
+class GroupedBrkt(Expr): pass
 
 
 precedence = (
            ('left', '/'),
            ('nonassoc', '^', '_'),
-           # completar
+           # TODO completar
 )
 
-def p_expression_binop(p):
-    ''' expression : expression '+' expression
-        #          | ...
-    '''
+def p_chr(p):
+    '''expression : CHR '''
+    pass
 
-    #p[0] = p[0] = BinOp(p[1],p[2],p[3])
+def p_concat(p):
+    '''expression : expression expression'''
+    pass
+
+def p_expression_binop(p):
+    '''expression : expression '^' expression
+                  | expression '_' expression
+                  | expression '/' expression'''
+    pass
+
+#TODO Completar
+
+
+def p_error(p):
+    print("Syntax error in input!")

@@ -2,7 +2,7 @@ import ply.lex as lex
 
 
 #    Robado de la documentacion. la idea es definir qué pinta tienen los
-#    simbolos terminales de la gramática. se definen como t_TOKEN para cada t_TOKEN
+#    simbolos terminales de la gramática. se definen como t_TOKEN para cada TOKEN
 #    (o definirlos como literales de un solo caracter)
 #
 #
@@ -78,12 +78,11 @@ tokens = (
 )
 
 # los literales son chars que matchean de una
-literals = "_^+/(){}"
+literals = "_^/(){}"
 
 def t_CHR(t):
-    # acá iría algo para matchear los chars 'l' de la expresión
-    r'[a-zA-Z]'
-    # esto no sirve, matchea solo letras -está para que corra
+    # el primer ^ toma complemento de los símbolos que siguen
+    r'[^ _ \^ / \( \)\{\}]'
     return t
 
 t_ignore  = '\t'
