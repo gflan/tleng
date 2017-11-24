@@ -1,5 +1,6 @@
 import ply.yacc as yacc
 from tokrules import tokens
+from AST import *
 
 #   La idea acá es definir las producciones de la gramática y cómo se va
 #   sintetizando el atributo correspondiente "p" a cada una
@@ -80,22 +81,6 @@ from tokrules import tokens
 #
 #       Posible estructura TODO Completar
 # E
-class Expr: pass
-
-# a
-class Chr(Expr): pass
-
-# A ^ B ó A _ B
-class BinOp(Expr): pass
-
-# A B
-class Concat(Expr): pass
-
-# ()
-class GroupedPar(Expr): pass
-
-# {}
-class GroupedBrkt(Expr): pass
 
 
 precedence = (
@@ -106,26 +91,28 @@ precedence = (
 
 def p_expression_chr(p):
     '''expression : CHR '''
-    pass
+    p[0] = Chr(p[1])
 
 def p_expression_concat(p):
-    # %prec asocia la precedencia producción a la del pseudosimbolo CONCAT
     '''expression : expression expression %prec CONCAT'''
-    pass
+    # %prec asocia la precedencia producción a la del pseudosimbolo CONCAT
+    p[0] = Concat(p[1], p[2])
 
 def p_expression_binop(p):
     '''expression : expression '^' expression
                   | expression '_' expression
                   | expression '/' expression'''
-    pass
+    p[0] = p[1]
 
 def p_expression_grouped_par(p):
     '''expression : '(' expression ')' '''
-    pass
+    p[0] = p[1]
+
 
 def p_expression_grouped_brkt(p):
     '''expression : '{' expression '}' '''
-    pass
+    p[0] = p[1]
+
 
 def p_error(p):
     print("Syntax error in input!")
