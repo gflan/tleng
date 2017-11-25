@@ -87,7 +87,8 @@ SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 precedence = (
            ('left', '/'),
            ('left', 'CONCAT'),
-           ('nonassoc', '^', '_'),
+           ('nonassoc', '^'),
+           ('nonassoc', '_'),
 )
 
 def p_expression_chr(p):
@@ -96,7 +97,7 @@ def p_expression_chr(p):
 
 def p_expression_concat(p):
     '''expression : expression expression %prec CONCAT'''
-    # %prec asocia la precedencia producción a la del pseudosimbolo CONCAT
+    # %prec asocia la precedencia de la producción a la del pseudosimbolo CONCAT
     p[0] = Concat(p[1], p[2])
 
 def p_expression_binop(p):
