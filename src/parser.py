@@ -12,7 +12,7 @@ def generate(input_str):
     lexer = lex(module=tokrules)
     parser = yacc(module=parser_rules)
     ast = parser.parse(input_str, lexer)
-    print(ast)
+    return ast
     # TODO hacer lo que haga falta con el arbol para que genere el SVG
 
 

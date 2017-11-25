@@ -82,6 +82,7 @@ from AST import *
 #       Posible estructura TODO Completar
 # E
 
+SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 
 precedence = (
            ('left', '/'),
@@ -115,4 +116,4 @@ def p_expression_grouped_brkt(p):
 
 
 def p_error(p):
-    print("Syntax error in input!")
+    raise ValueError(SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE)
