@@ -91,6 +91,12 @@ precedence = (
            ('nonassoc', '_'),
 )
 
+start = 'start'
+
+def p_start(p):
+    '''start : expression '''
+    p[0] = Start(p[1])
+
 def p_expression_chr(p):
     '''expression : CHR '''
     p[0] = Chr(p[1])
