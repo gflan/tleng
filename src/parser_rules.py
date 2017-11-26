@@ -78,9 +78,7 @@ from AST import *
 #   def p_expression_number(p):
 #       'expression : NUMBER'
 #       p[0] = Number(p[1])
-#
-#       Posible estructura TODO Completar
-# E
+
 
 SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 
@@ -91,8 +89,12 @@ precedence = (
            ('nonassoc', '_'),
 )
 
+def p_unary(p):
+    '''expression : unary_exp'''
+    p[0] = p[1]
+
 def p_expression_chr(p):
-    '''expression : CHR '''
+    '''unary_exp : CHR'''
     p[0] = Chr(p[1])
 
 def p_expression_concat(p):
@@ -100,21 +102,44 @@ def p_expression_concat(p):
     # %prec asocia la precedencia de la producción a la del pseudosimbolo CONCAT
     p[0] = Concat(p[1], p[2])
 
-def p_expression_binop(p):
-    '''expression : expression '^' expression
-                  | expression '_' expression
-                  | expression '/' expression'''
+def p_expression_div(p):
+    '''expression : expression '/' expression'''
     p[0] = p[1]
+
+def p_expression_super(p):
+    '''expression : unary_exp '^' unary_exp subexp'''
+    p[0] = p[1]
+
+def p_expression_sub(p):
+    '''expression : unary_exp '_' unary_exp superexp'''
+    p[0] = p[1]
+
+def p_superexp_lambda(p):
+    '''superexp : lambda'''
+    p[0] = None
+
+def p_superexp_expr(p):
+    '''superexp : '^' unary_exp'''
+    p[0] = None
+
+def p_subexp_lambda(p):
+    '''subexp : lambda'''
+    p[0] = None
+
+def p_subexp_expr(p):
+    '''subexp : '_' unary_exp'''
+    p[0] = None
 
 def p_expression_grouped_par(p):
-    '''expression : '(' expression ')' '''
+    '''unary_exp : '(' expression ')' '''
     p[0] = p[1]
-
 
 def p_expression_grouped_brkt(p):
-    '''expression : '{' expression '}' '''
+    '''unary_exp : '{' expression '}' '''
     p[0] = p[1]
 
+def p_lambda(p):
+    '''lambda :'''
 
 def p_error(p):
     raise ValueError(SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE)
