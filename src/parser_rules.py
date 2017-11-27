@@ -83,10 +83,10 @@ from AST import *
 SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 
 precedence = (
+    #('left', 'DIVIDE'),
 
     ('left', 'CONCAT'),
 
-    ('left', 'DIVIDE'),
     ('nonassoc', '^'),
         ('nonassoc', '_'),
 

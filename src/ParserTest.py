@@ -53,15 +53,15 @@ class ParserTest(unittest.TestCase):
         self.assert_equal_ast(ast, "a/b")
 
     def test_div_minus(self):
-        ast = DivExpr(Chr('a'), Concat(Concat(Chr('a'), Chr('b')),Chr('c')))
+        ast = DivExpr(Chr('a'), Concat(Concat(Chr('b'), Chr('-')),Chr('c')))
         self.assert_equal_ast(ast, "a/b-c")
 
     def test_parse_complex_formula(self):
         leftDivAst = Concat(SuperSub(Chr('A'), Chr('B'), LambdaExpr()), SuperSub(Chr('C'), Chr('D'), LambdaExpr()))
-        rightDivAst = Concat(Concat(SuperSub(Chr('E'), Chr('F'), SubSuffix('G')), Chr('+')), Chr('H'))
+        rightDivAst = Concat(Concat(SuperSub(Chr('E'), Chr('F'), SubSuffix(Chr('G'))), Chr('+')), Chr('H'))
         parentesisedAst = GroupedPar(DivExpr(leftDivAst, rightDivAst))
-        ast = Concat(Concat(parentesisedAst, Chr('I')), Chr('I'))
-        print(str(parser.generate("(A^BC^D/E^F_G+H)-I")))
+        ast = Concat(Concat(parentesisedAst, Chr('-')), Chr('I'))
+
         self.assert_equal_ast(ast, "(A^BC^D/E^F_G+H)-I")
 
     def test_complex_formula_equal_formula_with_curly_brackets(self):
