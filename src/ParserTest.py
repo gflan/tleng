@@ -9,14 +9,14 @@ class ParserTest(unittest.TestCase):
         self.assertEqual(str(contextManager.exception), Chr.non_character_error_description)
 
     def test_character_is_chr_expression(self):
-        self.assertEqual(parser.generate("a"), Chr('a'))
+        self.assertEqual(parser.ast_generate("a"), Chr('a'))
 
     def test_double_underscore_raises_syntax_error(self):
         self.assert_raises_syntax_error("a_a_a")
 
     def assert_raises_syntax_error(self, a):
         with self.assertRaises(ValueError) as cm:
-            parser.generate(a)
+            parser.ast_generate(a)
         self.assertEqual(str(cm.exception), "Syntax error in input!")
 
     def test_double_superscript_raises_syntax_error(self):
@@ -28,7 +28,7 @@ class ParserTest(unittest.TestCase):
         self.assert_equal_ast(ast, superScriptStr)
 
     def assert_equal_ast(self, ast, superScriptStr):
-        parsedAst = parser.generate(superScriptStr)
+        parsedAst = parser.ast_generate(superScriptStr)
         self.assertEqual(parsedAst, ast)
 
     def test_subscript(self):
@@ -65,10 +65,10 @@ class ParserTest(unittest.TestCase):
         self.assert_equal_ast(ast, "(A^BC^D/E^F_G+H)-I")
 
     def test_complex_formula_equal_formula_with_curly_brackets(self):
-        astComplexFormula = parser.generate("(A^BC^D/E^F_G+H)-I")
+        astComplexFormula = parser.ast_generate("(A^BC^D/E^F_G+H)-I")
         curlyBracketsFormula = "{({{A^B}{C^D}}/{{{E^F_G}+}H})-}I"
-        astCurlyBrackets = parser.generate(curlyBracketsFormula)
-        #self.assertEqual(astComplexFormula, astCurlyBrackets)
+        astCurlyBrackets = parser.ast_generate(curlyBracketsFormula)
+        self.assertEqual(astComplexFormula, astCurlyBrackets)
 
 
 if __name__ == '__main__':

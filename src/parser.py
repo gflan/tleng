@@ -8,7 +8,7 @@ from ply.yacc import yacc
 import parser_rules
 
 
-def generate(input_str):
+def ast_generate(input_str):
     lexer = lex(module=tokrules)
     parser = yacc(module=parser_rules)
     ast = parser.parse(input_str, lexer)
@@ -20,4 +20,4 @@ if __name__ == "__main__":
 
     # "This result return is the value assigned to p[0] in the starting grammar rule."
     # ast es de tipo Expr (def @ parser_rules)
-    generate(argv[1])
+    ast_generate(argv[1])
