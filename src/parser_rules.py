@@ -83,10 +83,11 @@ from AST import *
 SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 
 precedence = (
-           ('left', '/'),
-           ('left', 'CONCAT'),
-           ('nonassoc', '^'),
-           ('nonassoc', '_'),
+        ('left', '/'),
+        ('left', 'CONCAT'),
+        ('nonassoc', '^'),
+        ('nonassoc', '_'),
+
 )
 
 def p_unary(p):
@@ -104,39 +105,40 @@ def p_expression_concat(p):
 
 def p_expression_div(p):
     '''expression : expression '/' expression'''
-    p[0] = p[1]
+    p[0] = DivExpr(p[1], p[3])
 
 def p_expression_super(p):
     '''expression : unary_exp '^' unary_exp subexp'''
-    p[0] = p[1]
+    p[0] = SuperSub(p[1], p[3], p[4])
 
 def p_expression_sub(p):
     '''expression : unary_exp '_' unary_exp superexp'''
-    p[0] = p[1]
+    p[0] = SubSuper(p[1], p[3], p[4])
 
 def p_superexp_lambda(p):
     '''superexp : lambda'''
-    p[0] = None
+    p[0] = LambdaExpr()
 
 def p_superexp_expr(p):
     '''superexp : '^' unary_exp'''
-    p[0] = None
+    p[0] = SuperSuffix(p[2])
 
 def p_subexp_lambda(p):
     '''subexp : lambda'''
-    p[0] = None
+    p[0] = LambdaExpr()
 
 def p_subexp_expr(p):
     '''subexp : '_' unary_exp'''
-    p[0] = None
+    p[0] = SubSuffix(p[2])
 
 def p_expression_grouped_par(p):
     '''unary_exp : '(' expression ')' '''
-    p[0] = p[1]
+    p[0] = GroupedPar(p[2])
 
 def p_expression_grouped_brkt(p):
     '''unary_exp : '{' expression '}' '''
-    p[0] = p[1]
+    # Curly Brackets no aparecen en el AST
+    p[0] = p[2]
 
 def p_lambda(p):
     '''lambda :'''

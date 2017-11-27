@@ -22,18 +22,43 @@ class ParserTest(unittest.TestCase):
     def test_double_superscript_raises_syntax_error(self):
         self.assert_raises_syntax_error("a^a^a")
 
+    def test_superscript(self):
+        ast = SuperSub(Chr('a'), Chr('b'), LambdaExpr())
+        superScriptStr = "a^b"
+        self.assert_equal_ast(ast, superScriptStr)
+
+    def assert_equal_ast(self, ast, superScriptStr):
+        parsedAst = parser.generate(superScriptStr)
+        self.assertEqual(parsedAst, ast)
+
+    def test_subscript(self):
+        ast = SubSuper(Chr('a'), Chr('b'), LambdaExpr())
+        self.assert_equal_ast(ast, "a_b")
+
     def test_subscript_and_superscript(self):
-        parser.generate("a_b^c")
+        ast = SubSuper(Chr('a'), Chr('b'), SuperSuffix(Chr('c')))
+        self.assert_equal_ast(ast, "a_b^c")
 
     def test_superscript_and_subscript(self):
-        parser.generate("a^b_c")
+        ast = SuperSub(Chr('a'), Chr('b'), SubSuffix(Chr('c')))
+        self.assert_equal_ast(ast, "a^b_c")
 
     def test_qonda(self):
         #Esto deberia fallar no?
         self.assert_raises_syntax_error("a^b_c^d")
+        self.assert_raises_syntax_error("a_b^c_d")
+
+    def test_div(self):
+        ast = DivExpr(Chr('a'), Chr('b'))
+        self.assert_equal_ast(ast, "a/b")
 
     def test_parse_complex_formula(self):
-        parser.generate("(A^BC^D/E^F_G+H)-I")
+        leftDivAst = Concat(SuperSub(Chr('A'), Chr('B'), LambdaExpr()), SuperSub(Chr('C'), Chr('D'), LambdaExpr()))
+        rightDivAst = Concat(Concat(SuperSub(Chr('E'), Chr('F'), SubSuffix('G')), Chr('+')), Chr('H'))
+        parentesisedAst = GroupedPar(DivExpr(leftDivAst, rightDivAst))
+        ast = Concat(Concat(parentesisedAst, Chr('I')), Chr('I'))
+        print(str(parser.generate("(A^BC^D/E^F_G+H)-I")))
+        self.assert_equal_ast(ast, "(A^BC^D/E^F_G+H)-I")
 
     def test_complex_formula_equal_formula_with_curly_brackets(self):
         astComplexFormula = parser.generate("(A^BC^D/E^F_G+H)-I")
