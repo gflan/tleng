@@ -14,6 +14,7 @@ def ast_generate(input_str):
     ast = parser.parse(input_str, lexer)
     return ast
     # TODO hacer lo que haga falta con el arbol para que genere el SVG
+    # ast.accept(EscaleVisitor(1))
 
 
 if __name__ == "__main__":

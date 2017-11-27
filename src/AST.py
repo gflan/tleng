@@ -9,6 +9,10 @@ class LambdaExpr(Expr):
 
     def __str__(self):
         return "LambdaExpr"
+
+    def accept(self, visitor):
+        visitor.visitLambda(self)
+
 # a
 class Chr(Expr):
 
@@ -28,9 +32,8 @@ class Chr(Expr):
     def __str__(self):
         return "Chr({0})".format(self.character)
 
-# A ^ B ó A _ B
-class BinOp(Expr): pass
-
+    def accept(self, visitor):
+        visitor.visitChr(self)
 
 class DivExpr(Expr):
     def __init__(self, leftExpr, rightExpr):
@@ -44,17 +47,26 @@ class DivExpr(Expr):
         return self.leftExpr == other.leftExpr and self.rightExpr == other.rightExpr
     def __str__(self):
         return "DivExpr({0},{1})".format(self.leftExpr, self.rightExpr)
+
+    def accept(self, visitor):
+        visitor.visitDiv(self)
+
 # A B
 class Concat(Expr):
     def __init__(self, leftExpression, rightExpression):
         self.leftExpression = leftExpression
         self.rightExpression = rightExpression
+
     def __eq__(self, other):
         if not isinstance(other, Concat):
             return False
         return self.leftExpression == other.leftExpression and self.rightExpression == other.rightExpression
+
     def __str__(self):
         return "Concat({0},{1})".format(self.leftExpression, self.rightExpression)
+
+    def accept(self, visitor):
+        visitor.visitConcat(self)
 
 class SuperSub(Expr):
     def __init__(self, mainExpr, superExpr, subExpr):
@@ -76,6 +88,9 @@ class SuperSub(Expr):
     def __str__(self):
         return "SuperSub({0}, {1}, {2})".format(str(self.mainExpr), str(self.superExpr), str(self.subExpr))
 
+    def accept(self, visitor):
+        visitor.visitSuperSub(self)
+
 class SubSuper(Expr):
     def __init__(self, mainExpr, superExpr, subExpr):
         self.mainExpr = mainExpr
@@ -96,6 +111,8 @@ class SubSuper(Expr):
     def __str__(self):
         return "SubSuper({0}, {1}, {2})".format(str(self.mainExpr), str(self.superExpr), str(self.subExpr))
 
+    def accept(self, visitor):
+        visitor.visitSubSuper(self)
 
 class SuperSuffix(Expr):
     def __init__(self, expr):
@@ -109,6 +126,9 @@ class SuperSuffix(Expr):
     def __str__(self):
         return "SuperSuffix({0})".format(self.expr)
 
+    def accept(self, visitor):
+        visitor.visitSuperSuffix(self)
+
 class SubSuffix(Expr):
     def __init__(self, expr):
         self.expr = expr
@@ -120,6 +140,10 @@ class SubSuffix(Expr):
 
     def __str__(self):
         return "SubSuffix({0})".format(self.expr)
+
+    def accept(self, visitor):
+        visitor.visitSubSuffix(self)
+
 # ()
 class GroupedPar(Expr):
     def __init__(self, expr):
@@ -132,3 +156,6 @@ class GroupedPar(Expr):
 
     def __str__(self):
         return "GroupedPar({0})".format(self.expr)
+
+    def accept(self, visitor):
+        visitor.visitGroupedPar(self)
