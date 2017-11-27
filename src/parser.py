@@ -6,7 +6,7 @@ import tokrules
 
 from ply.yacc import yacc
 import parser_rules
-
+from SVGGenerator import *
 
 def ast_generate(input_str):
     lexer = lex(module=tokrules)
@@ -20,4 +20,4 @@ if __name__ == "__main__":
 
     # "This result return is the value assigned to p[0] in the starting grammar rule."
     # ast es de tipo Expr (def @ parser_rules)
-    ast_generate(argv[1])
+    print(SVGGenerator(argv[1]).generate())
