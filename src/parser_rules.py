@@ -83,9 +83,11 @@ from AST import *
 SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
 
 precedence = (
-        ('left', '/'),
-        ('left', 'CONCAT'),
-        ('nonassoc', '^'),
+
+    ('left', 'CONCAT'),
+
+    ('left', 'DIVIDE'),
+    ('nonassoc', '^'),
         ('nonassoc', '_'),
 
 )
@@ -104,7 +106,7 @@ def p_expression_concat(p):
     p[0] = Concat(p[1], p[2])
 
 def p_expression_div(p):
-    '''expression : expression '/' expression'''
+    '''expression : expression DIVIDE expression'''
     p[0] = DivExpr(p[1], p[3])
 
 def p_expression_super(p):

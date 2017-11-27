@@ -75,14 +75,19 @@ import ply.lex as lex
 
 tokens = (
     'CHR',
+    'DIVIDE'
 )
 
 # los literales son chars que matchean de una
-literals = "_^/(){}"
+literals = "_^(){}"
 
 def t_CHR(t):
     # el primer ^ toma complemento de los símbolos que siguen
     r'[^ _ \^ / \( \)\{\}]'
+    return t
+
+def t_DIVIDE(t):
+    r'/'
     return t
 
 t_ignore  = '\t'

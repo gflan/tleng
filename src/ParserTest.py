@@ -52,6 +52,10 @@ class ParserTest(unittest.TestCase):
         ast = DivExpr(Chr('a'), Chr('b'))
         self.assert_equal_ast(ast, "a/b")
 
+    def test_div_minus(self):
+        ast = DivExpr(Chr('a'), Concat(Concat(Chr('a'), Chr('b')),Chr('c')))
+        self.assert_equal_ast(ast, "a/b-c")
+
     def test_parse_complex_formula(self):
         leftDivAst = Concat(SuperSub(Chr('A'), Chr('B'), LambdaExpr()), SuperSub(Chr('C'), Chr('D'), LambdaExpr()))
         rightDivAst = Concat(Concat(SuperSub(Chr('E'), Chr('F'), SubSuffix('G')), Chr('+')), Chr('H'))
