@@ -72,13 +72,13 @@ class WidthVisitor(Visitor):
         expr.mainExpr.accept(self)
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
-        expr.a = expr.mainExpr.a + expr.superExpr.a + expr.subExpr.a
+        expr.a = expr.mainExpr.a + max(expr.superExpr.a, expr.subExpr.a)
 
     def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
-        expr.a = expr.mainExpr.a + expr.superExpr.a + expr.subExpr.a
+        expr.a = expr.mainExpr.a + max(expr.superExpr.a, expr.subExpr.a)
 
     def visitSuperSuffix(self, supersuffix_expr):
         supersuffix_expr.expr.accept(self)
@@ -90,8 +90,7 @@ class WidthVisitor(Visitor):
 
     def visitGroupedPar(self, grouped_expr):
         grouped_expr.expr.accept(self)
-        grouped_expr.a = grouped_expr.expr.a
-
+        grouped_expr.a = grouped_expr.expr.a + grouped_expr.e * 2 * 0.6 # contar los ()
 
 class HVisitor(Visitor):
 
@@ -138,7 +137,6 @@ class HVisitor(Visitor):
         sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25
 
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
-
         super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
         expr.h1 = max(expr.mainExpr.h1, super_h1)
 
@@ -219,7 +217,7 @@ class XVisitor(Visitor):
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
-        expr.rightExpression.accept(XVisitor(self.pos + expr.a))
+        expr.rightExpression.accept(XVisitor(self.pos + expr.leftExpression.a))
 
     def visitSubSuper(self, expr):
         expr.mainExpr.accept(self)
@@ -291,8 +289,6 @@ class PrintVisitor(Visitor):
     def visitChr(self, expr):
         #print("{} e:{} x:{} y:{}".format(expr, expr.e, expr.x, expr.y))
         print("<text x=\"{}\" y=\"{}\" font-size=\"{}\">{}</text>".format(expr.x, expr.y, expr.e, expr.character))
-
-
 
     def visitDiv(self, expr):
         expr.leftExpr.accept(self)

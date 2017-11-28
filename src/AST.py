@@ -92,7 +92,7 @@ class SuperSub(Expr):
         visitor.visitSuperSub(self)
 
 class SubSuper(Expr):
-    def __init__(self, mainExpr, superExpr, subExpr):
+    def __init__(self, mainExpr, subExpr, superExpr):
         self.mainExpr = mainExpr
         self.superExpr = superExpr
         self.subExpr = subExpr
