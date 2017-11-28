@@ -41,11 +41,11 @@ class EscaleVisitor(Visitor):
         supersuffix_expr.expr.accept(self)
 
     def visitSubSuffix(self, subsuffix_expr):
-        supersuffix_expr.e = self.e
+        subsuffix_expr.e = self.e
         subsuffix_expr.expr.accept(self)
 
     def visitGroupedPar(self, grouped_expr):
-        supersuffix_expr.e = self.e
+        grouped_expr.e = self.e
         grouped_expr.expr.accept(self)
 
 class WidthVisitor(Visitor):
@@ -121,16 +121,26 @@ class HVisitor(Visitor):
         expr.mainExpr.accept(self)
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
-        expr.h1 = max(expr.mainExpr.h1, expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e)
+
+        super_h1 = 0 if isinstance(expr.superExpr, LambdaExpr) else expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
+
+        expr.h1 = max(expr.mainExpr.h1, super_h1)
         #sumamos el h1 hasta el 'y' del superindice con su h1 y le restamos su escala (que sino se suma dos veces)
-        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+        sub_h2 = expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25
+        expr.h2 = max(expr.mainExpr.h2, sub_h2)
 
      def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
-        expr.h1 = max(expr.mainExpr.h1, expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e)
-        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+        sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25
+
+        expr.h2 = max(expr.mainExpr.h2, sub_h2)
+
+        super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
+        expr.h1 = max(expr.mainExpr.h1, super_h1)
 
      def visitSuperSuffix(self, supersuffix_expr):
         supersuffix_expr.expr.accept(self)
@@ -269,3 +279,44 @@ class YVisitor(Visitor):
         grouped_expr.expr.accept(self)
 
 class SVGRendererVisitor(Visitor) : pass
+
+# para visualizar mejor
+class PrintVisitor(Visitor):
+
+    def __init__(self): pass
+
+    def visitLambda(self, expr):
+        pass
+
+    def visitChr(self, expr):
+        #print("{} e:{} x:{} y:{}".format(expr, expr.e, expr.x, expr.y))
+        print("<text x=\"{}\" y=\"{}\" font-size=\"{}\">{}</text>".format(expr.x, expr.y, expr.e, expr.character))
+
+
+
+    def visitDiv(self, expr):
+        expr.leftExpr.accept(self)
+        expr.rightExpr.accept(self)
+
+    def visitConcat(self, expr):
+        expr.leftExpression.accept(self)
+        expr.rightExpression.accept(self)
+
+    def visitSubSuper(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+
+    def visitSuperSub(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+
+    def visitSuperSuffix(self, supersuffix_expr):
+        supersuffix_expr.expr.accept(self)
+
+    def visitSubSuffix(self, subsuffix_expr):
+        subsuffix_expr.expr.accept(self)
+
+    def visitGroupedPar(self, grouped_expr):
+        grouped_expr.expr.accept(self)
