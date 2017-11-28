@@ -139,25 +139,26 @@ class XVisitor(Visitor):
     def visitLambda(self, expr): pass
 
     def visitChr(self, expr):
-        expr.x = self.x
+        expr.x = self.pos
 
     def visitDiv(self, expr):
-        expr.leftExpr.accept(self)
-        expr.rightExpr.accept(self)
+        divwidth = max(leftExpr.a, rightExpr.a)
+        expr.leftExpr.accept(self.pos + (divwidth - leftExpr.a)/2) #ambos centrados respecto de la linea de división
+        expr.rightExpr.accept(self.pos + (divwidth - rightExpr.a)/2)
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
-        expr.rightExpression.accept(XVisitor(self.x + expr.a))
+        expr.rightExpression.accept(XVisitor(self.pos + expr.a))
 
     def visitSubSuper(self, expr):
         expr.mainExpr.accept(self)
-        expr.subExpr.accept(XVisitor(self.x + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
-        expr.superExpr.accept(XVisitor(self.x + expr.mainExpr.a + expr.subExpr.a)) # Idem
+        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
+        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Idem
 
     def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
-        expr.superExpr.accept(XVisitor(self.x + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
-        expr.subExpr.accept(XVisitor(self.x + expr.mainExpr.a + expr.superExpr.a)) # Idem
+        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
+        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Idem
 
     def visitSuperSuffix(self, supersuffix_expr):
         supersuffix_expr.expr.accept(self)
@@ -170,4 +171,3 @@ class XVisitor(Visitor):
 
 
 class YVisitor(Visitor): pass
-
