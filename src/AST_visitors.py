@@ -15,30 +15,37 @@ class EscaleVisitor(Visitor):
         expr.e = self.e
 
     def visitDiv(self, expr):
+        expr.e = self.e
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
 
     def visitConcat(self, expr):
+        expr.e = self.e
         expr.leftExpression.accept(self)
         expr.rightExpression.accept(self)
 
     def visitSubSuper(self, expr):
+        expr.e = self.e
         expr.mainExpr.accept(self)
         expr.superExpr.accept(EscaleVisitor(0.7*self.e))
         expr.subExpr.accept(EscaleVisitor(0.7*self.e))
 
     def visitSuperSub(self, expr):
+        expr.e = self.e
         expr.mainExpr.accept(self)
         expr.superExpr.accept(EscaleVisitor(0.7*self.e))
         expr.subExpr.accept(EscaleVisitor(0.7*self.e))
 
     def visitSuperSuffix(self, supersuffix_expr):
+        supersuffix_expr.e = self.e
         supersuffix_expr.expr.accept(self)
 
     def visitSubSuffix(self, subsuffix_expr):
+        supersuffix_expr.e = self.e
         subsuffix_expr.expr.accept(self)
 
     def visitGroupedPar(self, grouped_expr):
+        supersuffix_expr.e = self.e
         grouped_expr.expr.accept(self)
 
 class WidthVisitor(Visitor):
@@ -86,50 +93,103 @@ class WidthVisitor(Visitor):
         grouped_expr.a = grouped_expr.expr.a
 
 
-class H1Visitor(Visitor): pass
-    #
-    # def __init__(self): pass
-    #
-    # def visitLambda(self, expr):
-    #     expr.h1 = 0
-    #
-    # def visitChr(self, expr):
-    #     expr.h1 = 0.6 * expr.e
-    #
-    # def visitDiv(self, expr): pass
-    #     # expr.leftExpr.accept(self)
-    #     # expr.rightExpr.accept(self)
-    #     # expr.a = max(expr.leftExpr.a, expr.rightExpr.a)
-    #
-    # def visitConcat(self, expr):
-    #     expr.leftExpression.accept(self)
-    #     expr.rightExpression.accept(self)
-    #     expr.h1 = max(expr.leftExpression.h1, expr.rightExpression.h1)
-    #
-    # def visitSubSuper(self, expr): pass
-    #     # expr.mainExpr.accept(self)
-    #     # expr.superExpr.accept(self)
-    #     # expr.subExpr.accept(self)
-    #     # expr.h1 = max(expr.superExpr.h1, expr.subExpr.h1)
-    #
-    # def visitSuperSub(self, expr): pass
-    #     # expr.mainExpr.accept(self)
-    #     # expr.superExpr.accept(self)
-    #     # expr.subExpr.accept(self)
-    #     # expr.h1 =
-    # def visitSuperSuffix(self, supersuffix_expr):
-    #     supersuffix_expr.expr.accept(self)
-    #     supersuffix_expr.h1 = supersuffix_expr.expr.h1
-    #
-    # def visitSubSuffix(self, subsuffix_expr):
-    #     subsuffix_expr.expr.accept(self)
-    #     subsuffix_expr.h1 = 0
-    #
-    # def visitGroupedPar(self, grouped_expr):
-    #     grouped_expr.expr.accept(self)
-    #     grouped_expr.h1 = grouped_expr.expr.h1
+class HVisitor(Visitor):
 
-class H2Visitor(Visitor): pass
+     def __init__(self): pass
+
+     def visitLambda(self, expr):
+        expr.h1 = 0
+        expr.h2 = 0
+
+     def visitChr(self, expr):
+        expr.h1 = expr.e
+        expr.h2 = 0
+
+     def visitDiv(self, expr):
+        expr.leftExpr.accept(self)
+        expr.rightExpr.accept(self)
+        expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2
+        expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2
+
+     def visitConcat(self, expr):
+        expr.leftExpression.accept(self)
+        expr.rightExpression.accept(self)
+        expr.h1 = max(expr.leftExpression.h1, expr.rightExpression.h1)
+        expr.h2 = max(expr.leftExpression.h2, expr.rightExpression.h2)
+
+     def visitSubSuper(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+        expr.h1 = max(expr.mainExpr.h1, expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e)
+        #sumamos el h1 hasta el 'y' del superindice con su h1 y le restamos su escala (que sino se suma dos veces)
+        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+     def visitSuperSub(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+        expr.h1 = max(expr.mainExpr.h1, expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e)
+        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+     def visitSuperSuffix(self, supersuffix_expr):
+        supersuffix_expr.expr.accept(self)
+        supersuffix_expr.h1 = supersuffix_expr.expr.h1
+        supersuffix_expr.h2 = supersuffix_expr.expr.h2
+
+     def visitSubSuffix(self, subsuffix_expr):
+        subsuffix_expr.expr.accept(self)
+        subsuffix_expr.h1 = subsuffix_expr.expr.h1
+        subsuffix_expr.h2 = subsuffix_expr.expr.h2
+
+     def visitGroupedPar(self, grouped_expr):
+        grouped_expr.expr.accept(self)
+        grouped_expr.h1 = grouped_expr.expr.h1
+        grouped_expr.h2 = grouped_expr.expr.h2
+
+'''class H2Visitor(Visitor):
+
+     def __init__(self): pass
+
+     def visitLambda(self, expr):
+        expr.h2 = 0
+
+     def visitChr(self, expr):
+        expr.h2 = 0
+
+     def visitDiv(self, expr):
+        expr.leftExpr.accept(self)
+        expr.rightExpr.accept(self)
+        expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2
+
+     def visitConcat(self, expr):
+        expr.leftExpression.accept(self)
+        expr.rightExpression.accept(self)
+        expr.h2 = max(expr.leftExpression.h2, expr.rightExpression.h2)
+
+     def visitSubSuper(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+     def visitSuperSub(self, expr):
+        expr.mainExpr.accept(self)
+        expr.superExpr.accept(self)
+        expr.subExpr.accept(self)
+        expr.h2 = max(expr.mainExpr.h2, expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)
+
+     def visitSuperSuffix(self, supersuffix_expr):
+        supersuffix_expr.expr.accept(self)
+        supersuffix_expr.h2 = supersuffix_expr.expr.h2
+
+     def visitSubSuffix(self, subsuffix_expr):
+        subsuffix_expr.expr.accept(self)
+        subsuffix_expr.h2 = subsuffix_expr.expr.h2
+
+     def visitGroupedPar(self, grouped_expr):
+        grouped_expr.expr.accept(self)
+        grouped_expr.h2 = grouped_expr.expr.h2'''
 
 class XVisitor(Visitor):
 
@@ -142,9 +202,10 @@ class XVisitor(Visitor):
         expr.x = self.pos
 
     def visitDiv(self, expr):
-        divwidth = max(leftExpr.a, rightExpr.a)
-        expr.leftExpr.accept(self.pos + (divwidth - leftExpr.a)/2) #ambos centrados respecto de la linea de división
-        expr.rightExpr.accept(self.pos + (divwidth - rightExpr.a)/2)
+        divwidth = max(expr.leftExpr.a, expr.rightExpr.a)
+        #ambos centrados respecto de la linea de división
+        expr.leftExpr.accept(XVisitor(self.pos + (divwidth - expr.leftExpr.a)/2))
+        expr.rightExpr.accept(XVisitor(self.pos + (divwidth - expr.rightExpr.a)/2))
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
@@ -152,13 +213,13 @@ class XVisitor(Visitor):
 
     def visitSubSuper(self, expr):
         expr.mainExpr.accept(self)
-        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
-        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Idem
+        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
 
     def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
-        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Quizá deberíamos mover por constante < 1
-        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a)) # Idem
+        expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+        expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
 
     def visitSuperSuffix(self, supersuffix_expr):
         supersuffix_expr.expr.accept(self)
@@ -170,4 +231,41 @@ class XVisitor(Visitor):
         grouped_expr.expr.accept(self)
 
 
-class YVisitor(Visitor): pass
+class YVisitor(Visitor):
+
+    def __init__(self, pos):
+        self.pos = pos
+
+    def visitLambda(self, expr): pass
+
+    def visitChr(self, expr):
+        expr.y = self.pos
+
+    def visitDiv(self, expr):
+        expr.leftExpr.accept(YVisitor(self.pos - expr.leftExpr.h2))
+        expr.rightExpr.accept(YVisitor(self.pos + expr.rightExpr.h1))
+
+    def visitConcat(self, expr):
+        expr.leftExpression.accept(self)
+        expr.rightExpression.accept(self)
+
+    def visitSubSuper(self, expr):
+        expr.mainExpr.accept(self)
+        expr.subExpr.accept(YVisitor(self.pos + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)) #parece ser la fórmula que usaron en el ejemplo del enunciado
+        expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45)) #visto en clase
+
+    def visitSuperSub(self, expr):
+        expr.mainExpr.accept(self)
+        expr.subExpr.accept(YVisitor(self.pos + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25))
+        expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45))
+
+    def visitSuperSuffix(self, supersuffix_expr):
+        supersuffix_expr.expr.accept(self)
+
+    def visitSubSuffix(self, subsuffix_expr):
+        subsuffix_expr.expr.accept(self)
+
+    def visitGroupedPar(self, grouped_expr):
+        grouped_expr.expr.accept(self)
+
+class SVGRendererVisitor(Visitor) : pass
