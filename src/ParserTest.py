@@ -1,6 +1,7 @@
 import unittest
 import parser
 from AST import *
+from AST_visitors import *
 
 class ParserTest(unittest.TestCase):
     def test_cant_create_chr_expression_with_non_character(self):
@@ -69,7 +70,6 @@ class ParserTest(unittest.TestCase):
         curlyBracketsFormula = "{({{A^B}{C^D}}/{{{E^F_G}+}H})-}I"
         astCurlyBrackets = parser.ast_generate(curlyBracketsFormula)
         self.assertEqual(astComplexFormula, astCurlyBrackets)
-
 
 if __name__ == '__main__':
     unittest.main()
