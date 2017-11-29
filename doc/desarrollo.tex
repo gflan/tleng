@@ -1,0 +1,57 @@
+\section{Desarrollo}
+
+\subsection{Lexer}
+
+Utilizamos los siguientes tokens con sus respectivas reglas 
+\begin{itemize}
+	\item \textbf{DIVIDE}: El símbolo '/' para la división
+	\item Los literales: \quotes{\_\^ () \{\}} 
+	\item \textbf{CHR}: Cualquier símbolo exceptuando los anteriores. 
+	\\Esto incluye:
+	\begin{itemize}
+		\item cualquier caracter a-z y A-Z
+		\item +
+		\item *
+	\end{itemize}
+\end{itemize}
+
+\subsection{Gramática}
+
+\begin{figure}[h!] \centering
+\begin{tabular}{lrrl}
+$\mathcal{P}:$
+& $E$  & \produces     & $UNARYEXP$ \\
+& & \alsoproduces & $E \verb| | E$ \\
+& & \alsoproduces & $E$ \textbf{DIVIDE} $E$ \\
+& & \alsoproduces & $UNARYEXP \verb| ^ | UNARYEXP \verb| | SUBEXP$ \\
+& & \alsoproduces & $UNARYEXP \verb| _ | UNARYEXP \verb| | SUPEREXP$ \\
+& & \alsoproduces & $E \verb| DIVIDE | E$ \\
+& $UNARYEXP$  & \produces     & \textbf{CHR} \\
+& & \alsoproduces & ( $E$ ) \\
+& & \alsoproduces & \{ $E$ \} \\
+& $SUPEREXP$  & \produces     &  \verb| ^ | $UNARYEXP$ \\
+& & \alsoproduces & $\lambda$ \\
+& $SUBEXP$  & \produces     &  \verb| _ | $UNARYEXP$ \\
+& & \alsoproduces & $\lambda$ \\
+
+
+\end{tabular}
+\caption{Producciones de la gramática}
+\label{fig:gramatica}
+\end{figure}
+
+
+Tabla de precedencia
+\begin{itemize}
+	\item \textbf{DIV} asociativa a izquierda 
+
+    \item '\{', '(' asociativas a izquierda  
+    \item \textbf{CHR} asociativa a izquierda 
+    \item CONCAT, asociativa a izquierda, pseudosímbolo para la concatenación 
+    \item \verb|'^'| no asociativa
+    \item \verb|'_'| no asociativa
+\end{itemize}
+
+\subsection{AST}
+
+\subsection{Atributos y SVG}
