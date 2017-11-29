@@ -1,3 +1,6 @@
+OBS: A/a/a/a/a no debería ir reduciendo la escala?
+
+
 # TLENG
 Trabajo práctico 2017 2c
 

@@ -21,8 +21,13 @@ class SVGGeneratorTest(unittest.TestCase):
     def test_a_div_b(self):
         svg_generator = SVGGenerator('aa')
         svg = svg_generator.generate()
+        print (svg)
         self.assertEqual(svg, self.test_object_factory.a_div_b_svg())
 
+    def test_exp(self):
+        svg_generator = SVGGenerator('(A^BC^D/E^F_G+H)-I ')
+        svg = svg_generator.generate()
+        print (svg)
 
 if __name__ == '__main__':
     unittest.main()
