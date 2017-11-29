@@ -268,7 +268,7 @@ class SVGRendererVisitor(Visitor) :
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
         expr.svg = expr.leftExpr.svg
-        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y-expr.e*0.4, expr.x + expr.a, expr.y-expr.e*0.4)
+        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y-expr.e*0.45, expr.x + expr.a, expr.y-expr.e*0.45)
         expr.svg += expr.rightExpr.svg
 
     def visitConcat(self, expr):
