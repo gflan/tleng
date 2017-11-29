@@ -19,7 +19,7 @@ def generar(input):
 
 if __name__ == "__main__":
 
-    if len(argv) == 0:
+    if len(argv) < 2:
         print("Parámetros válidos: <expresión>  [opcional: -o <nombre del output svg>]")
         exit(1)
 
