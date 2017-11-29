@@ -16,8 +16,9 @@ def generar(input):
     return ast
 
 if __name__ == "__main__":
-    ast_with_attributes = generar(argv[1])
-    # ast_with_attributes = generar("(A^{A^{A^{A^{A}}}}/E^F_G+H)-I")
+    # ast_with_attributes = generar(argv[1])
+
+    ast_with_attributes = generar("(A^{A^{A^{A^{A}}}}/E^F_G+H)-I")
     result = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"2000\" height=\"1000\" version=\"1.1\">\n<g transform=\"scale(40)\" font-family=\"Courier\">\n"
     result += ast_with_attributes.svg
     result += "</g>\n</svg>\n"
