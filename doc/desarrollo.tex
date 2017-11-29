@@ -41,9 +41,15 @@ $\mathcal{P}:$
 \end{figure}
 
 
-Precedencia
+Tabla de precedencia
 \begin{itemize}
-\item aaa
+	\item \textbf{DIV} asociativa a izquierda 
+
+    \item '\{', '(' asociativas a izquierda  
+    \item \textbf{CHR} asociativa a izquierda 
+    \item CONCAT, asociativa a izquierda, pseudosímbolo para la concatenación 
+    \item \verb|'^'| no asociativa
+    \item \verb|'_'| no asociativa
 \end{itemize}
 
 \subsection{AST}
