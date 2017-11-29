@@ -99,22 +99,26 @@ class HVisitor(Visitor):
     def visitLambda(self, expr):
         expr.h1 = 0
         expr.h2 = 0
+        expr.h = expr.h1 + expr.h2
 
     def visitChr(self, expr):
         expr.h1 = expr.e
         expr.h2 = 0
+        expr.h = expr.h1 + expr.h2
 
     def visitDiv(self, expr):
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
         expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2 + expr.e*0.6
         expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2 - expr.e*0.6
+        expr.h = expr.h1 + expr.h2 + 0.3 # 0.3 por la linea divisoria
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
         expr.rightExpression.accept(self)
         expr.h1 = max(expr.leftExpression.h1, expr.rightExpression.h1)
         expr.h2 = max(expr.leftExpression.h2, expr.rightExpression.h2)
+        expr.h = expr.h1 + expr.h2
 
     def visitSubSuper(self, expr):
         expr.mainExpr.accept(self)
@@ -128,6 +132,7 @@ class HVisitor(Visitor):
 
         sub_h2 = expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25 - expr.mainExpr.e*0.7 # en un dibujo se ve bien, notar el 0.7 porque los char del mainExpr no miden toda la escala de largo sino que solo el 70% y el restante es espacio vacio
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
+        expr.h = expr.h1 + expr.h2
 
     def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
@@ -139,21 +144,25 @@ class HVisitor(Visitor):
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
         super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
         expr.h1 = max(expr.mainExpr.h1, super_h1)
+        expr.h = expr.h1 + expr.h2
 
     def visitSuperSuffix(self, supersuffix_expr):
         supersuffix_expr.expr.accept(self)
         supersuffix_expr.h1 = supersuffix_expr.expr.h1
         supersuffix_expr.h2 = supersuffix_expr.expr.h2
+        supersuffix_expr.h = supersuffix_expr.h1 + supersuffix_expr.h2
 
     def visitSubSuffix(self, subsuffix_expr):
         subsuffix_expr.expr.accept(self)
         subsuffix_expr.h1 = subsuffix_expr.expr.h1
         subsuffix_expr.h2 = subsuffix_expr.expr.h2
+        subsuffix_expr.h = subsuffix_expr.h1 + subsuffix_expr.h2
 
     def visitGroupedPar(self, grouped_expr):
         grouped_expr.expr.accept(self)
         grouped_expr.h1 = grouped_expr.expr.h1
         grouped_expr.h2 = grouped_expr.expr.h2
+        grouped_expr.h = grouped_expr.expr.h
 
 class XVisitor(Visitor):
 
@@ -259,7 +268,7 @@ class SVGRendererVisitor(Visitor) :
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
         expr.svg = expr.leftExpr.svg
-        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y+0.2-expr.e*0.6, expr.x + expr.a, expr.y+0.20-expr.e*0.6)
+        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y-expr.e*0.4, expr.x + expr.a, expr.y-expr.e*0.4)
         expr.svg += expr.rightExpr.svg
 
     def visitConcat(self, expr):
@@ -289,6 +298,6 @@ class SVGRendererVisitor(Visitor) :
 
     def visitGroupedPar(self, grouped_expr):
         grouped_expr.expr.accept(self)
-        grouped_expr.svg = "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"scale(1,{})\">(</text> \n".format(grouped_expr.x, grouped_expr.y, grouped_expr.e, 1)
+        grouped_expr.svg = "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{}) translate(-{},-{})\">(</text> \n".format(grouped_expr.x, grouped_expr.y, grouped_expr.e, grouped_expr.x, grouped_expr.y, grouped_expr.h*0.9, grouped_expr.x, grouped_expr.y)
         grouped_expr.svg += grouped_expr.expr.svg
-        grouped_expr.svg += "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"scale(1,{})\">)</text> \n".format(grouped_expr.x + grouped_expr.a - 0.6*grouped_expr.e, grouped_expr.y, grouped_expr.e, 1) # -0.6 porque al a se le suma 0.6
+        grouped_expr.svg += "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{}) translate(-{},-{})\">)</text> \n".format(grouped_expr.x + grouped_expr.a - 0.6*grouped_expr.e, grouped_expr.y, grouped_expr.e, grouped_expr.x, grouped_expr.y, grouped_expr.h*0.9, grouped_expr.x, grouped_expr.y) # -0.6 porque al a se le suma 0.6

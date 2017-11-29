@@ -32,11 +32,15 @@ if __name__ == "__main__":
 
     args = argparser.parse_args()
 
+    # ast_with_attributes = generar("2+({{({C/B/A})}/C})")
+    # ast_with_attributes = generar("({(A/B)(A/B)}^{((A/B)(A/B)_{(A_B)})})(A_{B^{B^{B}}})")
+    # ast_with_attributes = generar("({A/B})^{{(A/B)}^{{(A/B)}^{{(A/B)}^{{(A/B)}^{{(A/B)}}}}}}")
+    # ast_with_attributes = generar("{A/B}^{{A/B}^{{A/B}^{{A/B}^{{A/B}^{{A/B}}}}}}")
     ast_with_attributes = generar(args.expression)
     result = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\" version=\"1.1\" style=\"background: white\">\n<g transform=\"scale(40) translate(1,1)\" font-family=\"Courier\">\n".format(ast_with_attributes.a*50+80, (ast_with_attributes.h1+ast_with_attributes.h2)*40+80, ast_with_attributes.h1)
     result += ast_with_attributes.svg
     result += "</g>\n</svg>\n"
-
+    # print (result)
 
     output_file = open(args.output_filename, "w")
     output_file.write(result)
