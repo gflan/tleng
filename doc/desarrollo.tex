@@ -79,4 +79,50 @@ Las reglas de la concatenación, división e indexación siguen la descripción 
 
 \subsection{AST}
 
+Como \emph{Yacc} solo nos permite sintetizar atributos únicamente en una \quotes{pasada} sobre el árbol de parsing y como veremos en la sección de atributos requerimos requerimos de varias pasadas para setear los atributos deseados, decidimos sintetizar como atributo de la gramática justamente su \emph{AST} para luego poder recorrerlo múltiples veces decorándolo. \newline
+
+La idea es sencilla: por cada producción de la gramática sintetizamos un nodo que simboliza una operación sobre sus subtérminos. Por ejemplo, el input \texttt{A/B+C\super D\sub E} se corresponde con la estructura: \newline \texttt{DivExpr(Chr(A),Concat(Concat(Chr(B),Chr(+)),SuperSub(Chr(C), Chr(D), SubSuffix(Chr(E)))))
+}
+
 \subsection{Atributos y SVG}
+
+Para poder generar un SVG partiendo del AST ya sintetizado, necesitamos decorarlo con atributos:
+
+\begin{itemize}
+	\item \textbf{e}: el interlineado o escala \emph{(heredado)}
+	\item \textbf{a}: ancho de una expresión \emph{(sintetizado)}
+	\item \textbf{h1}: corrimiento \quotes{para arriba} desde la base de una expresión \emph{(sintetizado)}
+	\item \textbf{h2}: corrimiento \quotes{para abajo} desde la basa de una expresión \emph{(sintetizado)}
+	\item \textbf{x}: ubicación en el eje x de una expresión \emph{(heredado)}
+	\item \textbf{y}: ubicación en el eje y (la esquina \texttt{(0,0)} se corresponde con la esquina superior izquierda del buffer) de una expresión \emph{(heredado)}
+	\item \textbf{svg}: output en términos de tags SVG generados por la expresión \emph{(sintetizado)}
+\end{itemize}
+
+La manera de hacer pasadas sobre el AST se corresponde a la metodología del patrón de diseño \emph{\quote{Visitors}} comunmente usado para iterar este tipo de estructuras y que permite usar polimorfismo y double-dispatch para hacer llamados recursivos sobre cada nodo.
+
+\subsubsection{Cálculo de atributos}
+
+\begin{itemize}
+	\item El atributo \textbf{\quotes{e}} correspondiente a la escala, se inicia en 1 sobre la raíz y se reduce a un 70\% de su valor en cada indexación. Se trata de un atributo heredado.
+
+	\item El atributo \textbf{\quotes{a}} correspondiente al ancho es:
+	\begin{itemize}
+		\item el 60\% de la escala para caracteres
+		\item suma de anchos de subexpresiones el caso de concatenaciones
+		\item suma del ancho de la expresión principal y máximo ancho entre los índices para indexación
+		\item máximo entre ancho del numerador y del denominador para divisiones
+		\item suma de la expresión mas ancho de los dos paréntesis/llaves en dichos casos
+	\end{itemize}
+
+	\item El atributo \textbf{\quotes{h1}} es:
+	\begin{itemize}
+		\item el interlineado para caracteres
+		\item máximo entre ambos h1 para concatenaciones
+		\item máximo entre el h1 de la expresión principal y h1 del superíndice mas su altura desde la base de la expresión general
+		\item h1 del numerador menos el corrimiento para arriba desde la base de la línea de división para tales expresiones
+		\item h1 de la expresión principal para paréntesis/llaves
+	\end{itemize}
+
+	\item El atributo \textbf{\quotes{svg}} se toma concatenando los strings de las subexpresiones (y agregando líneas, caracteres y paréntesis necesarios con los atributos heredados)
+
+\end{itemize}
