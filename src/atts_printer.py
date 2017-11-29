@@ -5,18 +5,16 @@ import parser
 # para testear atributos
 def generar(input):
     ast = parser.ast_generate(input)
-    ve = AST_visitors.EscaleVisitor(1)
-    vw = AST_visitors.WidthVisitor()
-    vh = AST_visitors.HVisitor()
-    vx = AST_visitors.XVisitor(0)
-    vy = AST_visitors.YVisitor(0)
-    ast.accept(ve)
-    ast.accept(vw)
-    ast.accept(vh)
-    ast.accept(vx)
-    ast.accept(vy)
-    ast.accept(AST_visitors.PrintVisitor())
+
+    ast.accept(AST_visitors.EscaleVisitor(1))
+    ast.accept(AST_visitors.WidthVisitor())
+    ast.accept(AST_visitors.HVisitor())
+    ast.accept(AST_visitors.XVisitor(0))
+    ast.accept(AST_visitors.YVisitor(0))
+    ast.accept(AST_visitors.SVGRendererVisitor())
+
     return ast
 
 if __name__ == "__main__":
-    generar(argv[1])
+    ast_with_attributes = generar(argv[1])
+    print(ast_with_attributes.svg)
