@@ -2,7 +2,6 @@ from sys import argv, exit
 import AST_visitors
 import parser
 import argparse
-
 # ejemplo de uso:
 # python3 (A^(A^(A^(A^(A)))_B)/E^F_G+H)-I"  [opcional:] -o cadenalarga.svg
 # por defecto manda a output.svg sino

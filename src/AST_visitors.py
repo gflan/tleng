@@ -107,8 +107,8 @@ class HVisitor(Visitor):
     def visitDiv(self, expr):
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
-        expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2
-        expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2
+        expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2 + expr.e*0.6
+        expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2 - expr.e*0.6
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
@@ -212,8 +212,8 @@ class YVisitor(Visitor):
         expr.y = self.pos
 
     def visitDiv(self, expr):
-        expr.leftExpr.accept(YVisitor(self.pos - expr.leftExpr.h2))
-        expr.rightExpr.accept(YVisitor(self.pos + expr.rightExpr.h1))
+        expr.leftExpr.accept(YVisitor(self.pos - expr.leftExpr.h2 - expr.e*0.6))
+        expr.rightExpr.accept(YVisitor(self.pos + expr.rightExpr.h1 - expr.e*0.6))
         expr.y = self.pos
 
     def visitConcat(self, expr):
@@ -259,7 +259,7 @@ class SVGRendererVisitor(Visitor) :
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
         expr.svg = expr.leftExpr.svg
-        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y+0.25, expr.x + expr.a, expr.y+0.25)
+        expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y+0.2-expr.e*0.6, expr.x + expr.a, expr.y+0.20-expr.e*0.6)
         expr.svg += expr.rightExpr.svg
 
     def visitConcat(self, expr):
