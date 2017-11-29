@@ -1,0 +1,14 @@
+
+Ejemplos expr. del lenguaje
+1. 2+({{({C/B/A})}/C})
+2. ({(A/B)(A/B)}^{((A/B)(A/B)_{(A_B)})})(A_{B^{B^{B}}})
+3. (Ax+B)^{A_B}(A)_{A^A}
+4. {a^2_1+a^2_2+...+a^2_n}/{||(a_1,...,a_n)||}
+5. {{A^{A^{A^{A}}}_n}/{B^{B^{B}}_m}}+A+B
+
+NO Ejemplos expr. del lenguaje
+1. 2+({} (parentesis no balanceados)
+2. (A/B}) (faltan llaves)
+3. A^{b+1}_ (subindice vacío)
+4. A4{}^ (superindice vacio)
+5. (cadena vacía)
