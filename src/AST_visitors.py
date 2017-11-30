@@ -130,7 +130,7 @@ class HVisitor(Visitor):
 
         expr.h1 = max(expr.mainExpr.h1, super_h1)
 
-        sub_h2 = expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25 - expr.mainExpr.e*0.7 # en un dibujo se ve bien, notar el 0.7 porque los char del mainExpr no miden toda la escala de largo sino que solo el 70% y el restante es espacio vacio
+        sub_h2 = expr.subExpr.h2 + expr.subExpr.e + expr.mainExpr.h*0.25 - expr.mainExpr.e*0.7 # en un dibujo se ve bien, notar el 0.7 porque los char del mainExpr no miden toda la escala de largo sino que solo el 70% y el restante es espacio vacio
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
         expr.h = expr.h1 + expr.h2
 
@@ -139,7 +139,7 @@ class HVisitor(Visitor):
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
 
-        sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25 - expr.mainExpr.e*0.7
+        sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + expr.mainExpr.h*0.25 - expr.mainExpr.e*0.7
 
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
         super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.e + expr.superExpr.h1 - expr.superExpr.e
@@ -232,13 +232,13 @@ class YVisitor(Visitor):
 
     def visitSubSuper(self, expr):
         expr.mainExpr.accept(self)
-        expr.subExpr.accept(YVisitor(self.pos + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25)) #parece ser la fórmula que usaron en el ejemplo del enunciado
+        expr.subExpr.accept(YVisitor(self.pos + expr.mainExpr.h*0.25)) #parece ser la fórmula que usaron en el ejemplo del enunciado
         expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45)) #visto en clase
         expr.y = self.pos
 
     def visitSuperSub(self, expr):
         expr.mainExpr.accept(self)
-        expr.subExpr.accept(YVisitor(self.pos + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25))
+        expr.subExpr.accept(YVisitor(self.pos + expr.mainExpr.h*0.25))
         expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45))
         expr.y = self.pos
 
