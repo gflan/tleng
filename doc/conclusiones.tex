@@ -1,4 +1,20 @@
-\subsection{Conclusiones}
-Más allá de los detalles estilísticos detrás del cálculo de atributos que permitieron obtener resultados visualmente aceptables, principalmente se valora la experiencia de haber podido aplicar nuestros conocimientos de técnicas de parsing (en este caso en particular de parsing \emph{LALR}) y síntesis de atributos para entender con bastante detalle qué sucedía cuando generamos parsers con \emph{Yacc}. \newline
+\section{Conclusiones}
 
-Sin estos conocimientos probablemente no hubieramos podido resolver ni entender tanto la tabla generada como sus conflictos \emph{Shift/Reduce} y \emph{Reduce} a través de órdenes de precedencia y modificando fuertemente la gramática original para que tenga características \emph{LALR}.
+Valoramos la experiencia de haber podido aplicar nuestros conocimientos de técnicas de parsing (en este caso en particular de parsing \emph{LALR}) y síntesis de atributos para entender con bastante detalle qué sucedía cuando generamos parsers con \emph{Yacc}. 
+
+Gracias a estos conocimientos pudimos resolver y entender tanto la tabla generada como sus conflictos \emph{Shift/Reduce} y \emph{Reduce} a través de órdenes de precedencia y modificando fuertemente la gramática original para que tenga características \emph{LALR}. \newline
+Luego, fuimos capaces de generar el AST de una forma que nos sirva para generar atributos.
+
+Si bien esta generación de atributos para formar el SVG requirió ajustes manuales, esto nos permitió obtener resultados visualmente aceptables, con una variedad muy grande de fórmulas del lenguaje. Parte de la necesidad de los ajustes se debió a no tener en claro como lograr ciertos detalles en SVG, y exactamente que buscábamos generar. Aún así, los resultados fueron muy exitosos. 
+
+\section{Bibliografía}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{ply}
+	\textbf{PLY}: Python LEX-Yacc 
+	http://www.dabeaz.com/ply/
+  
+
+\end{thebibliography}
