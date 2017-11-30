@@ -1,0 +1,772 @@
+\section{Código fuente}
+
+Se omite el launcher del lexer dado que solamente es llamar al lexer desde un main y no forma parte del programa principal.
+
+\subsection{tokrules.py}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\footnotesize,
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=5pt,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2
+}
+
+\lstset{style=mystyle}
+    \begin{lstlisting}[language=Python]
+        import ply.lex as lex
+
+        tokens = (
+            'CHR',
+            'DIVIDE'
+        )
+
+        # los literales son chars que matchean de una
+        literals = "_^(){}"
+
+        def t_CHR(t):
+            # el primer ^ toma complemento de los simbolos que siguen
+            r'[^ _ \^ / \( \)\{\}]'
+            return t
+
+        def t_DIVIDE(t):
+            r'/'
+            return t
+
+        t_ignore  = '\t'
+
+        def t_error(t):
+            print("Illegal character '%s'" % t.value[0])
+            t.lexer.skip(1)
+
+    \end{lstlisting}
+
+\subsection{AST.py}
+
+    \begin{lstlisting}[language=Python]
+        class Expr: pass
+
+        class LambdaExpr(Expr):
+            def __init__(self):
+                pass
+
+            def __eq__(self, other):
+                return isinstance(other, LambdaExpr)
+
+            def __str__(self):
+                return "LambdaExpr"
+
+            def accept(self, visitor):
+                visitor.visitLambda(self)
+
+        # a
+        class Chr(Expr):
+
+            non_character_error_description = "Character should have length one"
+
+            def __init__(self, character):
+                if len(character) != 1:
+                    raise ValueError(Chr.non_character_error_description)
+                self.character = character
+
+            def __eq__(self, other):
+                if isinstance(other, Chr):
+                    return other.character == self.character
+                else:
+                    return False
+
+            def __str__(self):
+                return "Chr({0})".format(self.character)
+
+            def accept(self, visitor):
+                visitor.visitChr(self)
+
+        class DivExpr(Expr):
+            def __init__(self, leftExpr, rightExpr):
+                self.leftExpr = leftExpr
+                self.rightExpr = rightExpr
+
+            def __eq__(self, other):
+                if not isinstance(other, DivExpr):
+                    return False
+
+                return self.leftExpr == other.leftExpr and self.rightExpr == other.rightExpr
+            def __str__(self):
+                return "DivExpr({0},{1})".format(self.leftExpr, self.rightExpr)
+
+            def accept(self, visitor):
+                visitor.visitDiv(self)
+
+        # A B
+        class Concat(Expr):
+            def __init__(self, leftExpression, rightExpression):
+                self.leftExpression = leftExpression
+                self.rightExpression = rightExpression
+
+            def __eq__(self, other):
+                if not isinstance(other, Concat):
+                    return False
+                return self.leftExpression == other.leftExpression and self.rightExpression == other.rightExpression
+
+            def __str__(self):
+                return "Concat({0},{1})".format(self.leftExpression, self.rightExpression)
+
+            def accept(self, visitor):
+                visitor.visitConcat(self)
+
+        class SuperSub(Expr):
+            def __init__(self, mainExpr, superExpr, subExpr):
+                self.mainExpr = mainExpr
+                self.superExpr = superExpr
+                self.subExpr = subExpr
+
+            def __eq__(self, other):
+                if not isinstance(other, SuperSub):
+                    return False
+
+                comp = True
+                comp = comp and (self.mainExpr == other.mainExpr)
+                comp = comp and (self.superExpr == other.superExpr)
+                comp = comp and (self.subExpr == other.subExpr)
+
+                return comp
+
+            def __str__(self):
+                return "SuperSub({0}, {1}, {2})".format(str(self.mainExpr), str(self.superExpr), str(self.subExpr))
+
+            def accept(self, visitor):
+                visitor.visitSuperSub(self)
+
+        class SubSuper(Expr):
+            def __init__(self, mainExpr, subExpr, superExpr):
+                self.mainExpr = mainExpr
+                self.superExpr = superExpr
+                self.subExpr = subExpr
+
+            def __eq__(self, other):
+                if not isinstance(other, SubSuper):
+                    return False
+
+                comp = True
+                comp = comp and (self.mainExpr == other.mainExpr)
+                comp = comp and (self.superExpr == other.superExpr)
+                comp = comp and (self.subExpr == other.subExpr)
+
+                return comp
+
+            def __str__(self):
+                return "SubSuper({0}, {1}, {2})".format(str(self.mainExpr), str(self.superExpr), str(self.subExpr))
+
+            def accept(self, visitor):
+                visitor.visitSubSuper(self)
+
+        class SuperSuffix(Expr):
+            def __init__(self, expr):
+                self.expr = expr
+
+            def __eq__(self, other):
+                if not isinstance(other, SuperSuffix):
+                    return False
+                return other.expr == self.expr
+
+            def __str__(self):
+                return "SuperSuffix({0})".format(self.expr)
+
+            def accept(self, visitor):
+                visitor.visitSuperSuffix(self)
+
+        class SubSuffix(Expr):
+            def __init__(self, expr):
+                self.expr = expr
+
+            def __eq__(self, other):
+                if not isinstance(other, SubSuffix):
+                    return False
+                return other.expr == self.expr
+
+            def __str__(self):
+                return "SubSuffix({0})".format(self.expr)
+
+            def accept(self, visitor):
+                visitor.visitSubSuffix(self)
+
+        # ()
+        class GroupedPar(Expr):
+            def __init__(self, expr):
+                self.expr = expr
+
+            def __eq__(self, other):
+                if not isinstance(other, GroupedPar):
+                    return False
+                return self.expr == other.expr
+
+            def __str__(self):
+                return "GroupedPar({0})".format(self.expr)
+
+            def accept(self, visitor):
+                visitor.visitGroupedPar(self)
+
+    \end{lstlisting}
+
+\subsection{parser\_rules.py}
+
+    \begin{lstlisting}[language=Python]
+        import ply.yacc as yacc
+        from tokrules import tokens
+        from AST import *
+
+        SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE = "Syntax error in input!"
+
+        precedence = (
+            ('left', 'DIV'),
+
+            ('left', '{', '('),
+
+            ('left', 'CHR'),
+
+            ('left', 'CONCAT'),
+
+            ('nonassoc', '^'),
+                ('nonassoc', '_'),
+
+        )
+
+        def p_unary(p):
+            '''expression : unary_exp'''
+            p[0] = p[1]
+
+        def p_expression_chr(p):
+            '''unary_exp : CHR'''
+            p[0] = Chr(p[1])
+
+        def p_expression_concat(p):
+            '''expression : expression expression %prec CONCAT'''
+            # %prec asocia la precedencia de la produccion a la del pseudosimbolo CONCAT
+            p[0] = Concat(p[1], p[2])
+
+        def p_expression_div(p):
+            '''expression : expression DIVIDE expression %prec DIV'''
+            p[0] = DivExpr(p[1], p[3])
+
+        def p_expression_super(p):
+            '''expression : unary_exp '^' unary_exp subexp'''
+            p[0] = SuperSub(p[1], p[3], p[4])
+
+        def p_expression_sub(p):
+            '''expression : unary_exp '_' unary_exp superexp'''
+            p[0] = SubSuper(p[1], p[3], p[4])
+
+        def p_superexp_lambda(p):
+            '''superexp : lambda'''
+            p[0] = LambdaExpr()
+
+        def p_superexp_expr(p):
+            '''superexp : '^' unary_exp'''
+            p[0] = SuperSuffix(p[2])
+
+        def p_subexp_lambda(p):
+            '''subexp : lambda'''
+            p[0] = LambdaExpr()
+
+        def p_subexp_expr(p):
+            '''subexp : '_' unary_exp'''
+            p[0] = SubSuffix(p[2])
+
+        def p_expression_grouped_par(p):
+            '''unary_exp : '(' expression ')' '''
+            p[0] = GroupedPar(p[2])
+
+        def p_expression_grouped_brkt(p):
+            '''unary_exp : '{' expression '}' '''
+            # Curly Brackets no aparecen en el AST
+            p[0] = p[2]
+
+        def p_lambda(p):
+            '''lambda :'''
+
+        def p_error(p):
+            raise ValueError(SYNTAX_ERROR_IN_INPUT_ERROR_MESSAGE)
+
+    \end{lstlisting}
+
+
+\subsection{AST\_visitors.py}
+
+    \begin{lstlisting}[language=Python]
+        from AST import *
+        from copy import copy
+
+        class Visitor: pass
+
+        class EscaleVisitor(Visitor):
+
+            def __init__(self, escale):
+                self.e = escale
+
+            def visitLambda(self, expr):
+                pass
+
+            def visitChr(self, expr):
+                expr.e = self.e
+
+            def visitDiv(self, expr):
+                expr.e = self.e
+                expr.leftExpr.accept(self)
+                expr.rightExpr.accept(self)
+
+            def visitConcat(self, expr):
+                expr.e = self.e
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(self)
+
+            def visitSubSuper(self, expr):
+                expr.e = self.e
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(EscaleVisitor(0.7*self.e))
+                expr.subExpr.accept(EscaleVisitor(0.7*self.e))
+
+            def visitSuperSub(self, expr):
+                expr.e = self.e
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(EscaleVisitor(0.7*self.e))
+                expr.subExpr.accept(EscaleVisitor(0.7*self.e))
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.e = self.e
+                supersuffix_expr.expr.accept(self)
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.e = self.e
+                subsuffix_expr.expr.accept(self)
+
+            def visitGroupedPar(self, grouped_expr):
+                grouped_expr.e = self.e
+                grouped_expr.expr.accept(self)
+
+        class WidthVisitor(Visitor):
+
+            def __init__(self): pass
+
+            def visitLambda(self, expr):
+                expr.a = 0
+
+            def visitChr(self, expr):
+                expr.a = 0.6 * expr.e
+
+            def visitDiv(self, expr):
+                expr.leftExpr.accept(self)
+                expr.rightExpr.accept(self)
+                expr.a = max(expr.leftExpr.a, expr.rightExpr.a)
+
+            def visitConcat(self, expr):
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(self)
+                expr.a = expr.leftExpression.a + expr.rightExpression.a
+
+            def visitSubSuper(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+                expr.a = expr.mainExpr.a + max(expr.superExpr.a, expr.subExpr.a)
+
+            def visitSuperSub(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+                expr.a = expr.mainExpr.a + max(expr.superExpr.a, expr.subExpr.a)
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.expr.accept(self)
+                supersuffix_expr.a = supersuffix_expr.expr.a
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.expr.accept(self)
+                subsuffix_expr.a = subsuffix_expr.expr.a
+
+            def visitGroupedPar(self, grouped_expr):
+                grouped_expr.expr.accept(self)
+                grouped_expr.a = grouped_expr.expr.a + grouped_expr.e * 2 * 0.6 # contar ()
+
+        class HVisitor(Visitor):
+
+            def __init__(self): pass
+
+            def visitLambda(self, expr):
+                expr.h1 = 0
+                expr.h2 = 0
+                expr.h = 0
+
+            def visitChr(self, expr):
+                expr.h1 = expr.e
+                expr.h2 = 0
+                expr.h = expr.e
+
+            def visitDiv(self, expr):
+                expr.leftExpr.accept(self)
+                expr.rightExpr.accept(self)
+                expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2 + expr.e*0.6
+                expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2 - expr.e*0.6
+                expr.h = expr.h1 + expr.h2
+
+            def visitConcat(self, expr):
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(self)
+                expr.h1 = max(expr.leftExpression.h1, expr.rightExpression.h1)
+                expr.h2 = max(expr.leftExpression.h2, expr.rightExpression.h2)
+                expr.h = expr.h1 + expr.h2
+
+            def visitSubSuper(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+
+                super_h1 = 0 if isinstance(expr.superExpr, LambdaExpr) else expr.mainExpr.h1*0.45 + expr.mainExpr.e + expr.superExpr.h1 - expr.superExpr.e
+                #sumamos el h1 hasta el 'y' del superindice con su h1 y le restamos su escala (que sino se suma dos veces)
+
+                expr.h1 = max(expr.mainExpr.h1, super_h1)
+
+                sub_h2 = expr.subExpr.h2 + expr.subExpr.e + expr.mainExpr.h*0.25 - expr.mainExpr.e*0.7 # en un dibujo se ve bien, notar el 0.7 porque los char del mainExpr no miden toda la escala de largo sino que solo el 70% y el restante es espacio vacio
+                expr.h2 = max(expr.mainExpr.h2, sub_h2)
+                expr.h = expr.h1 + expr.h2
+
+            def visitSuperSub(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+
+                sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + expr.mainExpr.h*0.25 - expr.mainExpr.e*0.7
+
+                expr.h2 = max(expr.mainExpr.h2, sub_h2)
+                super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.e + expr.superExpr.h1 - expr.superExpr.e
+                expr.h1 = max(expr.mainExpr.h1, super_h1)
+                expr.h = expr.h1 + expr.h2
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.expr.accept(self)
+                supersuffix_expr.h1 = supersuffix_expr.expr.h1
+                supersuffix_expr.h2 = supersuffix_expr.expr.h2
+                supersuffix_expr.h = supersuffix_expr.h1 + supersuffix_expr.h2
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.expr.accept(self)
+                subsuffix_expr.h1 = subsuffix_expr.expr.h1
+                subsuffix_expr.h2 = subsuffix_expr.expr.h2
+                subsuffix_expr.h = subsuffix_expr.h1 + subsuffix_expr.h2
+
+            def visitGroupedPar(self, grouped_expr):
+                grouped_expr.expr.accept(self)
+                grouped_expr.h1 = grouped_expr.expr.h1
+                grouped_expr.h2 = grouped_expr.expr.h2
+                grouped_expr.h = grouped_expr.expr.h
+
+        class XVisitor(Visitor):
+
+            def __init__(self, pos):
+                self.pos = pos
+
+            def visitLambda(self, expr): pass
+
+            def visitChr(self, expr):
+                expr.x = self.pos
+
+            def visitDiv(self, expr):
+                divwidth = max(expr.leftExpr.a, expr.rightExpr.a)
+                #ambos centrados respecto de la linea de division
+                expr.leftExpr.accept(XVisitor(self.pos + (divwidth - expr.leftExpr.a)/2))
+                expr.rightExpr.accept(XVisitor(self.pos + (divwidth - expr.rightExpr.a)/2))
+                expr.x = self.pos
+
+            def visitConcat(self, expr):
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(XVisitor(self.pos + expr.leftExpression.a))
+                expr.x = self.pos
+
+            def visitSubSuper(self, expr):
+                expr.mainExpr.accept(self)
+                expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+                expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+                expr.x = self.pos
+
+            def visitSuperSub(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+                expr.subExpr.accept(XVisitor(self.pos + expr.mainExpr.a))
+                expr.x = self.pos
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.expr.accept(self)
+                supersuffix_expr.x = self.pos
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.expr.accept(self)
+                subsuffix_expr.x = self.pos
+
+            def visitGroupedPar(self, grouped_expr):
+                grouped_expr.expr.accept(XVisitor(self.pos + 0.6*grouped_expr.e)) # dejar espacio para '('
+                grouped_expr.x = self.pos
+
+        class YVisitor(Visitor):
+
+            def __init__(self, pos):
+                self.pos = pos
+
+            def visitLambda(self, expr): pass
+
+            def visitChr(self, expr):
+                expr.y = self.pos
+
+            def visitDiv(self, expr):
+                expr.leftExpr.accept(YVisitor(self.pos - expr.leftExpr.h2 - expr.e*0.6))
+                expr.rightExpr.accept(YVisitor(self.pos + expr.rightExpr.h1 - expr.e*0.6))
+                expr.y = self.pos
+
+            def visitConcat(self, expr):
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(self)
+                expr.y = self.pos
+
+            def visitSubSuper(self, expr):
+                expr.mainExpr.accept(self)
+                expr.subExpr.accept(YVisitor(self.pos + expr.mainExpr.h*0.25)) #parece ser la formula que usaron en el ejemplo del enunciado
+                expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45)) #visto en clase
+                expr.y = self.pos
+
+            def visitSuperSub(self, expr):
+                expr.mainExpr.accept(self)
+                expr.subExpr.accept(YVisitor(self.pos + expr.mainExpr.h*0.25))
+                expr.superExpr.accept(YVisitor(self.pos - expr.mainExpr.h1*0.45))
+                expr.y = self.pos
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.expr.accept(self)
+                supersuffix_expr.y = self.pos
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.expr.accept(self)
+                subsuffix_expr.y = self.pos
+
+            def visitGroupedPar(self, grouped_expr):
+                if isinstance(grouped_expr.expr, DivExpr):
+                    grouped_expr.expr.accept(YVisitor(self.pos - 0.3 * grouped_expr.expr.e))
+                else:
+                    grouped_expr.expr.accept(self)
+
+                grouped_expr.y = self.pos
+
+        class SVGRendererVisitor(Visitor) :
+
+            def __init__(self): pass
+
+            def visitLambda(self, expr):
+                expr.svg = ""
+
+            def visitChr(self, expr):
+                expr.svg = "<text x=\"{}\" y=\"{}\" font-size=\"{}\">{}</text> \n".format(expr.x, expr.y, expr.e, expr.character)
+
+            def visitDiv(self, expr):
+                expr.leftExpr.accept(self)
+                expr.rightExpr.accept(self)
+                expr.svg = expr.leftExpr.svg
+                expr.svg += "<line x1=\"{}\" y1=\"{}\" x2=\"{}\" y2=\"{}\" stroke-width=\"0.03\" stroke=\"black\"/>".format(expr.x, expr.y-expr.e*0.45, expr.x + expr.a, expr.y-expr.e*0.45)
+                expr.svg += expr.rightExpr.svg
+
+            def visitConcat(self, expr):
+                expr.leftExpression.accept(self)
+                expr.rightExpression.accept(self)
+                expr.svg = expr.leftExpression.svg + expr.rightExpression.svg
+
+            def visitSubSuper(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+                expr.svg = expr.mainExpr.svg + expr.subExpr.svg + expr.superExpr.svg
+
+            def visitSuperSub(self, expr):
+                expr.mainExpr.accept(self)
+                expr.superExpr.accept(self)
+                expr.subExpr.accept(self)
+                expr.svg = expr.mainExpr.svg + expr.superExpr.svg + expr.subExpr.svg
+
+            def visitSuperSuffix(self, supersuffix_expr):
+                supersuffix_expr.expr.accept(self)
+                supersuffix_expr.svg = supersuffix_expr.expr.svg
+
+            def visitSubSuffix(self, subsuffix_expr):
+                subsuffix_expr.expr.accept(self)
+                subsuffix_expr.svg = subsuffix_expr.expr.svg
+
+            def visitGroupedPar(self, grouped_expr):
+                grouped_expr.expr.accept(self)
+                times_scale = grouped_expr.h/grouped_expr.e
+                grouped_expr.svg = "<text x=\"0\" y=\"0\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{})\">(</text> \n".format(grouped_expr.e, grouped_expr.x, grouped_expr.y-(times_scale-1)*0.2*grouped_expr.e, times_scale)
+
+                grouped_expr.svg += grouped_expr.expr.svg
+
+                grouped_expr.svg += "<text x=\"0\" y=\"0\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{})\">)</text> \n".format(grouped_expr.e, grouped_expr.x + grouped_expr.a - 0.6*grouped_expr.e, grouped_expr.y-(times_scale-1)*0.2*grouped_expr.e, times_scale)
+
+    \end{lstlisting}
+
+
+\subsection{ParserTest.py}
+
+    \begin{lstlisting}[language=Python]
+        import unittest
+        import main
+        from AST import *
+        from AST_visitors import *
+
+        class ParserTest(unittest.TestCase):
+            def test_cant_create_chr_expression_with_non_character(self):
+                with self.assertRaises(ValueError) as contextManager:
+                    chr = Chr("")
+                self.assertEqual(str(contextManager.exception), Chr.non_character_error_description)
+
+            def test_character_is_chr_expression(self):
+                self.assertEqual(main.ast_generate("a"), Chr('a'))
+
+            def test_double_underscore_raises_syntax_error(self):
+                self.assert_raises_syntax_error("a_a_a")
+
+            def assert_raises_syntax_error(self, a):
+                with self.assertRaises(ValueError) as cm:
+                    main.ast_generate(a)
+                self.assertEqual(str(cm.exception), "Syntax error in input!")
+
+            def test_double_superscript_raises_syntax_error(self):
+                self.assert_raises_syntax_error("a^a^a")
+
+            def test_superscript(self):
+                ast = SuperSub(Chr('a'), Chr('b'), LambdaExpr())
+                superScriptStr = "a^b"
+                self.assert_equal_ast(ast, superScriptStr)
+
+            def assert_equal_ast(self, ast, superScriptStr):
+                parsedAst = main.ast_generate(superScriptStr)
+                self.assertEqual(parsedAst, ast)
+
+            def test_subscript(self):
+                ast = SubSuper(Chr('a'), Chr('b'), LambdaExpr())
+                self.assert_equal_ast(ast, "a_b")
+
+            def test_subscript_and_superscript(self):
+                ast = SubSuper(Chr('a'), Chr('b'), SuperSuffix(Chr('c')))
+                self.assert_equal_ast(ast, "a_b^c")
+
+            def test_superscript_and_subscript(self):
+                ast = SuperSub(Chr('a'), Chr('b'), SubSuffix(Chr('c')))
+                self.assert_equal_ast(ast, "a^b_c")
+
+            def test_qonda(self):
+                #Esto deberia fallar no?
+                self.assert_raises_syntax_error("a^b_c^d")
+                self.assert_raises_syntax_error("a_b^c_d")
+
+            def test_div(self):
+                ast = DivExpr(Chr('a'), Chr('b'))
+                self.assert_equal_ast(ast, "a/b")
+
+            def test_div_minus(self):
+                ast = DivExpr(Chr('a'), Concat(Concat(Chr('b'), Chr('-')),Chr('c')))
+                self.assert_equal_ast(ast, "a/b-c")
+
+            def test_parse_complex_formula(self):
+                leftDivAst = Concat(SuperSub(Chr('A'), Chr('B'), LambdaExpr()), SuperSub(Chr('C'), Chr('D'), LambdaExpr()))
+                rightDivAst = Concat(Concat(SuperSub(Chr('E'), Chr('F'), SubSuffix(Chr('G'))), Chr('+')), Chr('H'))
+                parentesisedAst = GroupedPar(DivExpr(leftDivAst, rightDivAst))
+                ast = Concat(Concat(parentesisedAst, Chr('-')), Chr('I'))
+
+                self.assert_equal_ast(ast, "(A^BC^D/E^F_G+H)-I")
+
+            def test_complex_formula_equal_formula_with_curly_brackets(self):
+                astComplexFormula = main.ast_generate("(A^BC^D/E^F_G+H)-I")
+                curlyBracketsFormula = "{({{A^B}{C^D}}/{{{E^F_G}+}H})-}I"
+                astCurlyBrackets = main.ast_generate(curlyBracketsFormula)
+                self.assertEqual(astComplexFormula, astCurlyBrackets)
+
+        if __name__ == '__main__':
+            unittest.main()
+
+    \end{lstlisting}
+
+
+    \subsection{main.py}
+
+        \begin{lstlisting}[language=Python]
+            #!/usr/bin/python3
+            from sys import argv, exit
+            import argparse
+
+            from ply.lex import lex
+            import tokrules
+
+            from ply.yacc import yacc
+            import parser_rules
+
+            import AST_visitors
+
+            def ast_generate(input_str):
+                lexer = lex(module=tokrules)
+                parser = yacc(module=parser_rules)
+                ast = parser.parse(input_str, lexer)
+                return ast
+
+            def generar(input):
+                ast = ast_generate(input)
+                # print(ast)
+                ast.accept(AST_visitors.EscaleVisitor(1))
+                ast.accept(AST_visitors.WidthVisitor())
+                ast.accept(AST_visitors.HVisitor())
+                ast.accept(AST_visitors.XVisitor(0))
+                ast.accept(AST_visitors.YVisitor(ast.h1))
+                ast.accept(AST_visitors.SVGRendererVisitor())
+
+                return ast
+
+            if __name__ == "__main__":
+                argparser = argparse.ArgumentParser(description='Parsea y genera SVG. Lo podes mandar a un archivo')
+                argparser.add_argument('expression', type=str,
+                                    help='Expresion para parsear')
+
+                argparser.add_argument('--output', '-o', dest='output_filename', default='output.svg', type=str,
+                                    help="Archivo output svg")
+
+                argparser.add_argument('--print-svg', '-p', dest='print_svg', action='store_const',
+                                const=True, default=False,
+                                help='Imprimir svg')
+
+                args = argparser.parse_args()
+
+                ast_with_attributes = generar(args.expression)
+                result = "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\" version=\"1.1\" style=\"background: white\">\n<g transform=\"scale(40) translate(1,1)\" font-family=\"Courier\">\n".format(ast_with_attributes.a*50+80, (ast_with_attributes.h1+ast_with_attributes.h2)*40+80, ast_with_attributes.h1)
+                result += ast_with_attributes.svg
+                result += "</g>\n</svg>\n"
+
+                output_file = open(args.output_filename, "w")
+                output_file.write(result)
+                output_file.close()
+
+                if args.print_svg:
+                    print(result)
+
+        \end{lstlisting}

@@ -9,9 +9,6 @@ from ply.yacc import yacc
 import parser_rules
 
 import AST_visitors
-# ejemplo de uso:
-# python3 main.py "(A^(A^(A^(A^(A)))_B)/E^F_G+H)-I"  [opcional:] -o cadenalarga.svg
-# por defecto manda a output.svg sino
 
 def ast_generate(input_str):
     lexer = lex(module=tokrules)
