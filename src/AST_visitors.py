@@ -251,7 +251,11 @@ class YVisitor(Visitor):
         subsuffix_expr.y = self.pos
 
     def visitGroupedPar(self, grouped_expr):
-        grouped_expr.expr.accept(self)
+        if isinstance(grouped_expr.expr, DivExpr):
+            grouped_expr.expr.accept(YVisitor(self.pos - 0.3 * grouped_expr.expr.e))
+        else:
+            grouped_expr.expr.accept(self)
+
         grouped_expr.y = self.pos
 
 class SVGRendererVisitor(Visitor) :
