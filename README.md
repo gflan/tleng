@@ -1,7 +1,6 @@
-OBS: A/a/a/a/a no debería ir reduciendo la escala?
+![Ejemplo](https://raw.githubusercontent.com/gflan/tleng/master/doc/imagenes/full.png)
 
-
-# TLENG
+# Teoría de Lenguajes
 Trabajo práctico 2017 2c
 
 =============

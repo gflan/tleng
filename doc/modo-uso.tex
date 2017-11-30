@@ -1,10 +1,13 @@
 \section{Modo de Uso}
 
-Para utilizar el programa usar \newline
-python3 main.py \quotes{EXPRESION} -o archivo.svg -p
+Para utilizar el programa (requiere \emph{PLY} para \emph{Python 3}) usar: \newline
+\texttt{python3 main.py \quotes{EXPRESION} -o archivo.svg -p}
 
 El parámetro -o es opcional, por default escribe al archivo \quotes{output.svg}. \\
 El parámetro -p es opcional, sirve para imprimir por pantalla el svg.
 
-Make tests genera los ejemplos que exhibimos en este informe.
+Make tests genera los ejemplos que exhibimos en este informe. \newline
 make parsertests corre tests sobre el parser y la generación del AST.
+
+Para probar el análisis lexicográfico sobre tokens: \newline
+\texttt{python3 lexer.py  \quotes{EXPRESION}}

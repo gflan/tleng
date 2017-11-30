@@ -4,6 +4,6 @@ matemáticas. El mismo toma como entrada la descripción de una fórmula
 en una versión simplificada del lenguaje utilizado por $LATEX$ y produce como salida un archivo SVG (Scalable Vector Graphics).
 Esta versión simplificada nos permite usar utilizar la división (o fracciones) y utilizar subíndices o superíndices.
 
-Usamos la librería PLY \cite{ply} de Python que nos permite hacer tanto el análisis léxico como sintáctico. Modificamos la gramática dada por enunciado, agregando además precedencias para que sea LALR.
+Usamos la librería PLY \cite{ply} de Python que nos permite hacer tanto el análisis léxico, que consiste en identificar subexpresiones de una cadena texto con símbolos terminales de nuestra gramática, como sintáctico, que consiste en trabajar sobre la estructura relativa a dicha gramática de la cadena input. Modificamos la gramática dada por enunciado, agregando además precedencias para que sea LALR.
 
 Hacia el final, hicimos pruebas de los resultados generados por nuestro programa frente a fórmulas variadas, con muy buenos resultados.

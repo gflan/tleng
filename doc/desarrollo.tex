@@ -55,7 +55,7 @@ Como \emph{PLY}, la herramienta que usamos tanto para el análisis lexicográfic
 
 Una de ellas fue juntar las producciones \emph{"superíndice"} y \emph{"super y subíndice"} en una única usando un no-terminal nuevo $SUBEXP$ que pudiera ser anulable o generar el subíndice e idem para las producciones \emph{"subíndice"} y \emph{"sub y superíndice"}. De lo contrario una cadena con super y subíndices  como $A\super B\sub C$ podría ser generada produciendo primero un superíndice y luego un subíndice usando dos producciones tanto como usando una única producción. \newline
 
-Otra manera de sortear este problema hubiera sido eliminando las producciones que combinan super y subíndices y usando ambas producciones de manera consecutiva, pero preferimos mantener las producciones ternarias sobre las binarias para facilitar el recorrido y "decorado" de la estructura sintáctica (sino no se nos complicaría distinguir estructuras de cadenas como $ A\sub \{B\super C\} $ ó $\{A\sub B\}\super C$ de las de $A\sub B\super C$). \newline
+Otra manera de sortear este problema hubiera sido eliminando las producciones que combinan super y subíndices y usando ambas producciones de manera consecutiva, pero preferimos mantener las producciones ternarias sobre las binarias para facilitar el recorrido y \quotes{decorado} de la estructura sintáctica (sino se nos complicaría distinguir estructuras de cadenas como $ A\sub \{B\super C\} $ ó $\{A\sub B\}\super C$ de las de $A\sub B\super C$). \newline
 
 El otro cambio importante fue agregar otro no-terminal $UNARYEXP$ que genera producciones 'unarias' (paréntesis o llaves sobre una $E$, o un $CHR$). La idea viene de la necesidad de desambiguar expresiones como $E\super E\sub E$ que podrían ser generadas como $E \Rightarrow E \super  E\ SUBEXP \Rightarrow E\super E\sub E$ o como $E \Rightarrow  E \super  E\ SUBEXP \Rightarrow E \super  E \Rightarrow E\ \super  E\sub \ E\ SUPEREXP \Rightarrow E \super  E\sub \ E\ $. \newline
 
@@ -79,7 +79,7 @@ Las reglas de la concatenación, división e indexación siguen la descripción 
 
 \subsection{AST}
 
-Como \emph{Yacc} solo nos permite sintetizar atributos únicamente en una \quotes{pasada} sobre el árbol de parsing y como veremos en la sección de atributos requerimos requerimos de varias pasadas para setear los atributos deseados, decidimos sintetizar como atributo de la gramática justamente su \emph{AST} para luego poder recorrerlo múltiples veces decorándolo. \newline
+Como \emph{Yacc} solo nos permite sintetizar atributos únicamente en una \quotes{pasada} sobre el árbol de parsing y como veremos en la sección de atributos requerimos de varias pasadas para setear los atributos deseados, decidimos sintetizar como atributo de la gramática justamente su \emph{AST} para luego poder recorrerlo múltiples veces decorándolo. \newline
 
 La idea es sencilla: por cada producción de la gramática sintetizamos un nodo que simboliza una operación sobre sus subtérminos. Por ejemplo, el input \texttt{A/B+C\super D\sub E} se corresponde con la estructura: \newline \texttt{DivExpr(Chr(A),Concat(Concat(Chr(B),Chr(+)),SuperSub(Chr(C), Chr(D), SubSuffix(Chr(E)))))} \newline
 
@@ -93,14 +93,14 @@ Para poder generar un SVG partiendo del AST ya sintetizado, necesitamos decorarl
 	\item \textbf{e}: el interlineado o escala \emph{(heredado)}
 	\item \textbf{a}: ancho de una expresión \emph{(sintetizado)}
 	\item \textbf{h1}: corrimiento \quotes{para arriba} desde la base de una expresión \emph{(sintetizado)}
-	\item \textbf{h2}: corrimiento \quotes{para abajo} desde la basa de una expresión \emph{(sintetizado)}
-	\item \textbf{h}: cuánto abarca la expresión de largo la expresión en total \emph{(sintetizado)}
+	\item \textbf{h2}: corrimiento \quotes{para abajo} desde la base de una expresión \emph{(sintetizado)}
+	\item \textbf{h}: cuánto abarca de largo la expresión en total \emph{(sintetizado)}
 	\item \textbf{x}: ubicación en el eje x de una expresión \emph{(heredado)}
 	\item \textbf{y}: ubicación en el eje y (la esquina \texttt{(0,0)} se corresponde con la esquina superior izquierda del buffer) de una expresión \emph{(heredado)}
 	\item \textbf{svg}: output en términos de tags SVG generados por la expresión \emph{(sintetizado)}
 \end{itemize}
 
-La manera de hacer pasadas sobre el AST se corresponde a la metodología del patrón de diseño \emph{\quote{Visitors}} comunmente usado para iterar este tipo de estructuras y que permite usar polimorfismo y double-dispatch para hacer llamados recursivos sobre cada nodo.
+La manera de hacer pasadas sobre el AST se corresponde a la metodología del patrón de diseño \quotes{\emph{Visitors}} comunmente usado para iterar este tipo de estructuras y que permite usar polimorfismo y double-dispatch para hacer llamados recursivos sobre cada nodo.
 
 \subsubsection{Cálculo de atributos}
 A continuación explicamos coloquialmente cómo fuimos generando los atributos para decorar el AST.
@@ -154,7 +154,7 @@ A continuación explicamos coloquialmente cómo fuimos generando los atributos p
 	\item El atributo \textbf{\quotes{y}} tambien se inicializa en 0 en la raíz y lo heredamos como:
 	\begin{itemize}
 		\item el mismo $y$ subido $h2$ del numerador para él mismo y bajado $h1$ del denominador para este, ambos casos con un desplazamiento hacia arriba por el corrimiento de la barra de división
-		\item el mismo $y$ argumento bajado un cuarto del $h$ de la expresión total para subíndices mientras que nuevamente el mismo $y$ subido $0.45$ veces el h1 de la expresión principal para superíndices
+		\item el mismo $y$ argumento bajado un cuarto del $h$ de la expresión total para subíndices mientras que nuevamente el mismo $y$ subido $0.45$ veces el $h1$ de la expresión principal para superíndices
 		\item para los paréntesis, caracteres y concatenación se mantiene igual la altura
 	\end{itemize}
 
@@ -162,6 +162,6 @@ A continuación explicamos coloquialmente cómo fuimos generando los atributos p
 	\begin{itemize}
 		\item para caracteres se devuelve un tag de tipo text con 'x', 'y' y 'font-size' correspondientes a los atributos $x$, $y$ y $e$ del mismo
 		\item para divisiones se concatenan los SVG del numerador y denominador con una barra horizontal de longitud del ancho de la división a casi la mitad del interlineado de altura
-		\item para paréntesis se concatenan tags de texto con caracteres '(' y ')' escalados para ocupar el 'h' de la expresión \footnote{Como dijimos antes, los paréntesis ocupan un 80\% de longitud del interlineado por lo que hay un 20\% de espacio vacío que, al escalarse, tambien se multiplica por lo que se lo restamos de modo que solamente quede un 20\% del interlineado como tal espacio.}
+		\item para paréntesis se concatenan tags de texto con caracteres '(' y ')' escalados para ocupar el $h$ de la expresión \footnote{Como dijimos antes, los paréntesis ocupan un 80\% de longitud del interlineado por lo que hay un 20\% de espacio vacío que, al escalarse, tambien se multiplica por lo que se lo restamos de modo que solamente quede un 20\% del interlineado como tal espacio.}
 	\end{itemize}
 \end{itemize}
