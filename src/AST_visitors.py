@@ -111,7 +111,7 @@ class HVisitor(Visitor):
         expr.rightExpr.accept(self)
         expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2 + expr.e*0.6
         expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2 - expr.e*0.6
-        expr.h = expr.h1 + expr.h2 + 0.3 # 0.3 por la linea divisoria
+        expr.h = expr.h1 + expr.h2 + 0.45*expr.e # 0.3 por la linea divisoria
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
@@ -125,10 +125,10 @@ class HVisitor(Visitor):
         expr.superExpr.accept(self)
         expr.subExpr.accept(self)
 
-        super_h1 = 0 if isinstance(expr.superExpr, LambdaExpr) else expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
+        super_h1 = 0 if isinstance(expr.superExpr, LambdaExpr) else expr.mainExpr.h1*0.45 + expr.mainExpr.e + expr.superExpr.h1 - expr.superExpr.e
+        #sumamos el h1 hasta el 'y' del superindice con su h1 y le restamos su escala (que sino se suma dos veces)
 
         expr.h1 = max(expr.mainExpr.h1, super_h1)
-        #sumamos el h1 hasta el 'y' del superindice con su h1 y le restamos su escala (que sino se suma dos veces)
 
         sub_h2 = expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25 - expr.mainExpr.e*0.7 # en un dibujo se ve bien, notar el 0.7 porque los char del mainExpr no miden toda la escala de largo sino que solo el 70% y el restante es espacio vacio
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
@@ -142,7 +142,7 @@ class HVisitor(Visitor):
         sub_h2 = 0 if isinstance(expr.subExpr, LambdaExpr) else expr.subExpr.h2 + expr.subExpr.e + (expr.mainExpr.h1 + expr.mainExpr.h2)*0.25 - expr.mainExpr.e*0.7
 
         expr.h2 = max(expr.mainExpr.h2, sub_h2)
-        super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.h1 + expr.superExpr.h1 - expr.superExpr.e
+        super_h1 = expr.mainExpr.h1*0.45 + expr.mainExpr.e + expr.superExpr.h1 - expr.superExpr.e
         expr.h1 = max(expr.mainExpr.h1, super_h1)
         expr.h = expr.h1 + expr.h2
 
