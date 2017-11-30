@@ -99,19 +99,19 @@ class HVisitor(Visitor):
     def visitLambda(self, expr):
         expr.h1 = 0
         expr.h2 = 0
-        expr.h = expr.h1 + expr.h2
+        expr.h = 0
 
     def visitChr(self, expr):
         expr.h1 = expr.e
         expr.h2 = 0
-        expr.h = expr.h1 + expr.h2
+        expr.h = expr.e
 
     def visitDiv(self, expr):
         expr.leftExpr.accept(self)
         expr.rightExpr.accept(self)
         expr.h1 = expr.leftExpr.h1 + expr.leftExpr.h2 + expr.e*0.6
         expr.h2 = expr.rightExpr.h1 + expr.rightExpr.h2 - expr.e*0.6
-        expr.h = expr.h1 + expr.h2 + 0.45*expr.e # 0.3 por la linea divisoria
+        expr.h = expr.h1 + expr.h2
 
     def visitConcat(self, expr):
         expr.leftExpression.accept(self)
@@ -298,6 +298,9 @@ class SVGRendererVisitor(Visitor) :
 
     def visitGroupedPar(self, grouped_expr):
         grouped_expr.expr.accept(self)
-        grouped_expr.svg = "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{}) translate(-{},-{})\">(</text> \n".format(grouped_expr.x, grouped_expr.y, grouped_expr.e, grouped_expr.x, grouped_expr.y, grouped_expr.h*0.9, grouped_expr.x, grouped_expr.y)
+        times_scale = grouped_expr.h/grouped_expr.e
+        grouped_expr.svg = "<text x=\"0\" y=\"0\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{})\">(</text> \n".format(grouped_expr.e, grouped_expr.x, grouped_expr.y-(times_scale-1)*0.2*grouped_expr.e, times_scale)
+
         grouped_expr.svg += grouped_expr.expr.svg
-        grouped_expr.svg += "<text x=\"{}\" y=\"{}\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{}) translate(-{},-{})\">)</text> \n".format(grouped_expr.x + grouped_expr.a - 0.6*grouped_expr.e, grouped_expr.y, grouped_expr.e, grouped_expr.x, grouped_expr.y, grouped_expr.h*0.9, grouped_expr.x, grouped_expr.y) # -0.6 porque al a se le suma 0.6
+
+        grouped_expr.svg += "<text x=\"0\" y=\"0\" font-size=\"{}\" transform=\"translate({},{}) scale(1,{})\">)</text> \n".format(grouped_expr.e, grouped_expr.x + grouped_expr.a - 0.6*grouped_expr.e, grouped_expr.y-(times_scale-1)*0.2*grouped_expr.e, times_scale)
