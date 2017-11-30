@@ -123,6 +123,15 @@ La manera de hacer pasadas sobre el AST se corresponde a la metodología del pat
 		\item h1 de la expresión principal para paréntesis/llaves
 	\end{itemize}
 
+	\item El atributo \textbf{\quotes{h2}} es:
+	\begin{itemize}
+		\item 0 para caracteres
+		\item máximo entre ambos h2 para concatenaciones
+		\item máximo entre h2 de la expresión principal y el h2 del subíndice mas su desfasaje con la base de la expresión principal considerando tambien que los caracteres miden el 70\% de su escala de alto \footnote{La idea de considerar el corrimiento real desde la base del caracter es que no se produzcan paddings fantasma en las divisiones (que corresponderían al espacio que queda entre la base del caracter y de su interlineado)}
+		\item h2 del denominador mas el corrimiento para arriba desde la base de la línea de división para las divisiones
+		\item h2 de la expresión principal para paréntesis/llaves
+	\end{itemize}
+
 	\item El atributo \textbf{\quotes{svg}} se toma concatenando los strings de las subexpresiones (y agregando líneas, caracteres y paréntesis necesarios con los atributos heredados)
 
 \end{itemize}
